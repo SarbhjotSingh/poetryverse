@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: poetryverse
+    name: poetryverse-sarbhjot
     runtime: docker
     plan: free
     autoDeploy: true
