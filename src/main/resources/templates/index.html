@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Where Words Find Their Forever')}"></head>
+<body>
+
+<!-- ========================================================================
+     TOP EDITORIAL NAVIGATION BAR (AUBADE & BOTANICAL CLOISTER STYLE)
+     ======================================================================== -->
+<nav style="background-color: #2A261D; border-bottom: 1px solid rgba(161,139,80,0.35); position: sticky; top: 0; z-index: 1020;">
+    <div class="container py-3 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+            <a href="#features" class="btn-editorial btn-editorial-sage d-none d-md-inline-flex" style="padding: 7px 18px; font-size: 10.5px;">
+                Anthology
+            </a>
+            <a href="#featured-poetry" style="color: #D9D0B9; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;" class="d-none d-lg-inline">
+                Featured Verse
+            </a>
+        </div>
+
+        <a th:href="@{/}" class="text-center text-decoration-none">
+            <div class="script-accent" style="font-size: 28px; color: #EAE4D3; line-height: 1;">PoetryVerse</div>
+            <div style="font-size: 9.5px; letter-spacing: 0.28em; text-transform: uppercase; color: #A18B50; margin-top: 2px;">
+                Est. MMXXVI • Literary Sanctuary
+            </div>
+        </a>
+
+        <div class="d-flex align-items-center gap-2">
+            <a th:href="@{/about}" style="color: #D9D0B9; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin-right: 10px;" class="d-none d-md-inline">
+                About
+            </a>
+            <th:block th:if="${currentUser != null}">
+                <a th:href="@{/dashboard}" class="btn-editorial btn-editorial-gold" style="padding: 8px 20px;">
+                    <i class="fa-solid fa-feather-pointed"></i> Enter Sanctuary
+                </a>
+            </th:block>
+            <th:block th:if="${currentUser == null}">
+                <a th:href="@{/login}" class="btn-editorial btn-editorial-ivory-outline" style="padding: 8px 18px; font-size: 10.5px;">
+                    Sign In
+                </a>
+                <a th:href="@{/register}" class="btn-editorial btn-editorial-sage" style="padding: 8px 18px; font-size: 10.5px;">
+                    Start Writing
+                </a>
+            </th:block>
+        </div>
+    </div>
+</nav>
+
+<!-- ========================================================================
+     1. HERO SECTION (INSPIRED BY AUBADE PAGES & BOTANICAL ARCHWAY)
+     ======================================================================== -->
+<section class="position-relative overflow-hidden"
+         style="background: linear-gradient(180deg, rgba(35,36,25,0.82) 0%, rgba(45,46,32,0.88) 100%), url('/images/editorial/archway-botanical.jpg') center/cover no-repeat; min-height: 84vh; display: flex; align-items: center; color: #F5F0E5; border-bottom: 2px solid #A18B50;">
+    <!-- Decorative Botanical Corner Overlays -->
+    <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+         style="position: absolute; top: 15px; right: 15px; width: 250px; opacity: 0.35; pointer-events: none;"/>
+    <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+         style="position: absolute; bottom: 15px; left: 15px; width: 230px; transform: rotate(180deg); opacity: 0.32; pointer-events: none;"/>
+
+    <div class="container py-5 position-relative text-center" style="z-index: 2; max-width: 880px;">
+        <div class="d-inline-block px-3 py-1 mb-3"
+             style="border: 1px solid rgba(200,178,118,0.45); background: rgba(37,37,30,0.45); font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #D9D0B9;">
+            PoetryVerse • Where Words Find Their Forever
+        </div>
+
+        <h1 class="serif-heading text-white mb-0"
+            style="font-size: clamp(2.8rem, 5.6vw, 4.7rem); font-weight: 400; line-height: 1.08; letter-spacing: 0.04em; text-transform: uppercase;">
+            A Beautiful Space for<br/>Every Word You Write
+        </h1>
+
+        <div class="script-accent my-2" style="font-size: clamp(1.9rem, 3.6vw, 2.9rem); color: #EAE4D3; transform: rotate(-1.5deg);">
+            like a love letter to your timeless verse
+        </div>
+
+        <p class="mx-auto mt-3 mb-4" style="max-width: 610px; font-size: 16.5px; color: #D9D0B9; font-weight: 300; line-height: 1.75;">
+            Compose in a distraction-free warm ivory sanctuary, curate vintage botanical collections, track your daily poetic cadence, and preserve your manuscripts in heirloom print editions.
+        </p>
+
+        <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+            <a th:href="${currentUser != null ? '/editor' : '/register'}" class="btn-editorial btn-editorial-sage" style="min-width: 210px; padding: 14px 32px;">
+                Start Writing
+            </a>
+            <a th:href="${currentUser != null ? '/collections' : '#featured-poetry'}" class="btn-editorial btn-editorial-ivory-outline" style="min-width: 210px; padding: 14px 32px;">
+                Explore Collections
+            </a>
+        </div>
+
+        <div class="mt-5 pt-2" style="font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: #C8B276;">
+            Inquire with the muse &longrightarrow; Craft • Organize • Immortalize
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================================
+     2. BAROQUE GOLDEN FRAMES GALLERY SECTION (WARM IVORY — REFERENCE IMAGE 5)
+     ======================================================================== -->
+<section class="py-5 position-relative overflow-hidden" style="background-color: #F5F0E5; border-bottom: 1px solid rgba(161,139,80,0.28);">
+    <div class="container py-5">
+        <div class="row align-items-center justify-content-center g-5">
+            <!-- Left Rectangular Antique Gold Frame -->
+            <div class="col-lg-5 col-md-6">
+                <div class="frame-ornate-gold mx-auto text-center d-flex flex-column justify-content-center"
+                     style="max-width: 370px; min-height: 410px; background-color: #FAF7F0;">
+                    <div style="font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #A18B50; margin-bottom: 16px;">
+                        I • The Sanctuary
+                    </div>
+                    <div class="script-accent px-3" style="font-size: 34px; color: #353626; line-height: 1.38;">
+                        You deserve<br/>a writing space<br/>that feels like...
+                    </div>
+                    <div class="mt-4 mx-auto" style="width: 55px; height: 1px; background-color: #A18B50;"></div>
+                    <p class="mt-3 mb-0 px-3" style="font-family: var(--font-serif); font-size: 16.5px; font-style: italic; color: #60604D;">
+                        fine cotton rag paper, pressed wildflowers, and unhurried morning light.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Oval Antique Gold Frame -->
+            <div class="col-lg-5 col-md-6">
+                <div class="frame-oval-gold mx-auto text-center d-flex flex-column justify-content-center align-items-center p-5"
+                     style="width: 330px; height: 390px; background-color: #353626; color: #F5F0E5;">
+                    <div class="script-accent mb-2" style="font-size: 38px; color: #C8B276;">you</div>
+                    <p class="mb-0 px-3" style="font-family: var(--font-serif); font-size: 18px; line-height: 1.65; color: #F5F0E5;">
+                        Not a cold blank document,<br/>
+                        but an heirloom library<br/>
+                        full of your cadence,<br/>
+                        moods, and memory.
+                    </p>
+                    <div class="mt-3" style="color: #A18B50; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;">
+                        ✦ PoetryVerse ✦
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================================
+     3. DEEP OLIVE EDITORIAL SHOWCASE ("VERSE REVIVAL" — REFERENCE IMAGE 5)
+     ======================================================================== -->
+<section id="features" class="py-5 position-relative" style="background-color: #353626; color: #F5F0E5;">
+    <div class="container py-5">
+        <div class="text-center mb-5 position-relative">
+            <span class="badge-editorial" style="background: #C5C2A5; color: #25251E; border: none; padding: 6px 16px; margin-bottom: 14px;">
+                + Craft &amp; Curation
+            </span>
+            <h2 class="serif-heading text-white mb-2" style="font-size: clamp(2.3rem, 4vw, 3.4rem); letter-spacing: 0.08em; text-transform: uppercase;">
+                Poetic Revival
+            </h2>
+            <p class="serif-heading fst-italic mb-0" style="font-size: 20px; color: #D9D0B9;">
+                If your verses are scattered across notebooks and notes apps, <span style="text-decoration: underline; text-underline-offset: 4px;">this sanctuary is for you</span>
+            </p>
+            <div class="script-accent d-none d-md-block"
+                 style="position: absolute; right: 14%; top: 18px; font-size: 26px; color: #D9D0B9; transform: rotate(-8deg);">
+                want more? &#8599;
+            </div>
+        </div>
+
+        <div class="row g-4 align-items-stretch mt-2">
+            <!-- Feature 1 -->
+            <div class="col-md-4">
+                <div class="p-4 h-100 rounded-1" style="background: rgba(245,240,229,0.05); border: 1px solid rgba(161,139,80,0.35);">
+                    <div style="color: #C8B276; font-size: 22px; margin-bottom: 14px;">
+                        <i class="fa-solid fa-feather-pointed"></i>
+                    </div>
+                    <h3 class="serif-heading text-white" style="font-size: 25px;">Distraction-Free Manuscript Editor</h3>
+                    <p style="color: #D9D0B9; font-size: 14.5px; line-height: 1.75;">
+                        Write on warm ivory linen, botanical eucalyptus frames, or dark cloister parchment. Enjoy real-time word, line, and stanza metrics, auto-save protection, and full-screen Zen mode.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="col-md-4">
+                <div class="p-4 h-100 rounded-1" style="background: rgba(245,240,229,0.05); border: 1px solid rgba(161,139,80,0.35);">
+                    <div style="color: #C8B276; font-size: 22px; margin-bottom: 14px;">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <h3 class="serif-heading text-white" style="font-size: 25px;">Curated Collections &amp; Herbarium Tags</h3>
+                    <p style="color: #D9D0B9; font-size: 14.5px; line-height: 1.75;">
+                        Organize poems into bespoke collections—<em>Love &amp; Romance</em>, <em>Nature &amp; Seasons</em>, <em>Voyages Toward Ithaca</em>—with custom epigraphs, accent colors, and one-click PDF anthology export.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="col-md-4">
+                <div class="p-4 h-100 rounded-1" style="background: rgba(245,240,229,0.05); border: 1px solid rgba(161,139,80,0.35);">
+                    <div style="color: #C8B276; font-size: 22px; margin-bottom: 14px;">
+                        <i class="fa-solid fa-compass-drafting"></i>
+                    </div>
+                    <h3 class="serif-heading text-white" style="font-size: 25px;">Templates, Journal &amp; Poetic Analytics</h3>
+                    <p style="color: #D9D0B9; font-size: 14.5px; line-height: 1.75;">
+                        Explore 8 classical &amp; modern templates (Sonnet, Haiku, Aubade, Acrostic), keep a daily mood-tracked writing journal, and visualize your writing streak with editorial charts.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <a th:href="${currentUser != null ? '/dashboard' : '/register'}" class="btn-editorial btn-editorial-sage me-2">
+                Enter Your Sanctuary
+            </a>
+            <a th:href="@{/login}" class="btn-editorial btn-editorial-ivory-outline" th:if="${currentUser == null}">
+                Sign In to Demo Library
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================================
+     4. FEATURED POETRY SECTION (IMAGE 3 PLUMWOOD SPREAD & IMAGE 4 ITHACA)
+     ======================================================================== -->
+<section id="featured-poetry" class="py-5" style="background-color: #F5F0E5; border-bottom: 1px solid rgba(161,139,80,0.28);">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <div class="script-accent" style="font-size: 26px;">From the Editorial Reading Room</div>
+            <h2 class="serif-heading" style="font-size: 40px; font-weight: 600;">Featured Manuscripts &amp; Editions</h2>
+        </div>
+
+        <!-- Reference Image 3: Plumwood Mountain Journal Editorial Spread -->
+        <div class="plumwood-spread mb-5">
+            <div class="plumwood-nature-strip"
+                 style="background: linear-gradient(180deg, rgba(31,53,42,0.2), rgba(31,53,42,0.55)), url('/images/editorial/archway-botanical.jpg') left center/cover;">
+            </div>
+
+            <div class="d-flex flex-column justify-content-center py-3 px-md-4">
+                <div class="d-flex justify-content-between align-items-center pb-3 mb-4"
+                     style="border-bottom: 1px solid rgba(96,96,77,0.22);">
+                    <span style="font-family: var(--font-serif); font-size: 15px; font-weight: 600; color: #353626;">
+                        <i class="fa-solid fa-tree me-1" style="color: #60604D;"></i> PoetryVerse Mountain Journal
+                    </span>
+                    <span style="font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #60604D;">
+                        Nature &amp; Seasons Folio
+                    </span>
+                </div>
+
+                <div class="plumwood-quote-mark">“</div>
+                <blockquote class="serif-heading my-2" style="font-size: clamp(1.6rem, 2.7vw, 2.35rem); line-height: 1.42; color: #25251E;">
+                    This is the one where I dream<br/>
+                    myself ursine, a silent breath<br/>
+                    of fur between pine on that<br/>
+                    ridgeline crowded with cloud.
+                </blockquote>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span class="serif-heading fst-italic" style="font-size: 15px; color: #60604D;">
+                        — from “Dreaming Myself Ursine on the Ridgeline”
+                    </span>
+                    <span class="plumwood-quote-mark" style="line-height: 0.2;">”</span>
+                </div>
+
+                <div class="mt-4 pt-3 d-flex justify-content-between align-items-center"
+                     style="border-top: 1px solid rgba(96,96,77,0.22);">
+                    <span style="font-size: 12px; color: #60604D;">Set in Cormorant Garamond • 22pt</span>
+                    <a th:href="${currentUser != null ? '/editor?template=free_verse' : '/register'}"
+                       class="btn-editorial btn-editorial-outline" style="padding: 7px 16px;">
+                        Write in This Style
+                    </a>
+                </div>
+            </div>
+
+            <div class="plumwood-nature-strip"
+                 style="background: linear-gradient(180deg, rgba(53,54,38,0.25), rgba(37,37,30,0.6)), url('/images/editorial/plumwood-journal.png') right center/cover;">
+            </div>
+        </div>
+
+        <!-- Reference Image 4: Ithaca Botanical Framed Print + Public Domain Cards -->
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-7">
+                <div class="frame-wood-gallery h-100 position-relative overflow-hidden">
+                    <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                         style="position: absolute; top: 10px; right: 10px; width: 170px; opacity: 0.78; pointer-events: none;"/>
+                    <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                         style="position: absolute; bottom: 10px; left: 10px; width: 150px; transform: rotate(180deg); opacity: 0.65; pointer-events: none;"/>
+
+                    <div class="position-relative" style="z-index: 2;">
+                        <h3 class="serif-heading mb-0" style="font-size: 36px; letter-spacing: 0.08em; text-transform: uppercase;">
+                            Ithaca
+                        </h3>
+                        <div style="font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: #60604D; margin-bottom: 18px;">
+                            Constantine P. Cavafy (1911)
+                        </div>
+                        <p class="serif-heading mb-3" style="font-size: 18.5px; line-height: 1.75; text-align: right; color: #25251E;">
+                            When you set out on your journey to Ithaca,<br/>
+                            pray that the road is long,<br/>
+                            full of adventure, full of knowledge.<br/>
+                            The Lestrygonians and the Cyclops,<br/>
+                            the angry Poseidon — do not fear them:<br/>
+                            You will never find such as these on your path,<br/>
+                            if your thoughts remain lofty, if a fine<br/>
+                            emotion touches your spirit and your body.
+                        </p>
+                        <p class="serif-heading mb-0" style="font-size: 18.5px; line-height: 1.75; text-align: right; color: #25251E;">
+                            Always keep Ithaca in your mind.<br/>
+                            To arrive there is your ultimate goal.<br/>
+                            But do not hurry the voyage at all.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 d-flex flex-column justify-content-between gap-4">
+                <div class="manuscript-card">
+                    <div>
+                        <span class="badge-editorial badge-gold mb-2">Public Domain Classic</span>
+                        <h4 class="serif-heading" style="font-size: 26px;">Hope is the Thing with Feathers</h4>
+                        <div style="font-size: 12px; color: #60604D; margin-bottom: 10px;">Emily Dickinson (1891)</div>
+                        <p class="serif-heading fst-italic mb-0" style="font-size: 18px; line-height: 1.7;">
+                            “Hope” is the thing with feathers -<br/>
+                            That perches in the soul -<br/>
+                            And sings the tune without the words -<br/>
+                            And never stops - at all -
+                        </p>
+                    </div>
+                </div>
+
+                <div class="manuscript-card" style="background-color: #353626; color: #F5F0E5;">
+                    <div>
+                        <span class="script-accent" style="font-size: 22px; color: #C8B276;">Daily Benediction</span>
+                        <h4 class="serif-heading text-white mt-1" style="font-size: 24px;"
+                            th:text="${dailyQuote != null ? dailyQuote.title : 'Letters to a Young Poet'}">Letters to a Young Poet</h4>
+                        <p class="serif-heading fst-italic mb-3" style="font-size: 18px; color: #EAE4D3;"
+                           th:text="${dailyQuote != null ? dailyQuote.promptText : 'Go into yourself and see how deep the place is from which your life flows.'}">
+                        </p>
+                        <a th:href="@{/discover}" class="btn-editorial btn-editorial-sage" style="padding: 8px 18px;">
+                            Explore Prompts &amp; Anthology
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================================
+     5. "THE HEART BEHIND THE PAGES" SECTION (REFERENCE IMAGE 5 BOTTOM)
+     ======================================================================== -->
+<section class="py-5 position-relative overflow-hidden" style="background-color: #EAE4D3;">
+    <div class="container py-5">
+        <div class="row align-items-center justify-content-center g-0">
+            <!-- Left Watermark & Overlapping Antique Gold Oval Portrait -->
+            <div class="col-lg-5 position-relative text-center mb-4 mb-lg-0" style="z-index: 2;">
+                <div class="serif-heading d-none d-md-block"
+                     style="position: absolute; left: 0; top: 10%; font-size: 46px; line-height: 0.95; color: rgba(96,96,77,0.22); text-align: left; pointer-events: none; font-weight: 600;">
+                    THE HEART<br/>BEHIND<br/>THE PAGES<br/>THE HEART<br/>BEHIND<br/>THE PAGES
+                </div>
+                <div class="frame-oval-gold mx-auto position-relative"
+                     style="width: 300px; height: 370px; background: #353626; margin-right: -30px;">
+                    <img th:src="@{/images/avatar-poet.svg}" alt="Poet Sanctuary"
+                         style="width: 100%; height: 100%; object-fit: cover;"/>
+                </div>
+            </div>
+
+            <!-- Right Deep Olive Editorial Column -->
+            <div class="col-lg-6">
+                <div class="p-4 p-md-5 shadow-lg" style="background-color: #353626; color: #F5F0E5; border-left: 4px solid #A18B50;">
+                    <div class="script-accent mb-2" style="font-size: 34px; color: #EAE4D3;">
+                        the heart behind the pages
+                    </div>
+                    <p style="font-size: 14.5px; color: #D9D0B9; line-height: 1.8;">
+                        PoetryVerse was architected for poets, lyricists, and keepers of quiet journals who believe that digital writing tools should never feel clinical or soulless.
+                    </p>
+                    <p style="font-size: 14.5px; color: #D9D0B9; line-height: 1.8;">
+                        Too often, luminous verses are lost inside sterile word processors or forgotten phone notes. <strong style="color: #F5F0E5;">It is not fair to your craft.</strong> Every stanza deserves to be framed in warm ivory, organized into enduring collections, and exported as a museum-worthy manuscript.
+                    </p>
+                    <div class="serif-heading fst-italic my-3" style="font-size: 20px; color: #C8B276;">
+                        “Where words find their forever—between pressed leaves and linen.”
+                    </div>
+                    <div class="mt-4 d-flex flex-wrap gap-3">
+                        <a th:href="@{/register}" class="btn-editorial btn-editorial-sage">Create Your Private Library</a>
+                        <a th:href="@{/about}" class="btn-editorial btn-editorial-ivory-outline">Read Our Manifesto</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================================
+     6. TESTIMONIALS FROM POETS
+     ======================================================================== -->
+<section class="py-5" style="background-color: #F5F0E5; border-top: 1px solid rgba(161,139,80,0.25);">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <div class="script-accent" style="font-size: 25px;">Voices from the Cloister</div>
+            <h2 class="serif-heading" style="font-size: 36px;">Cherished by Contemporary Poets</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="manuscript-card">
+                    <p class="serif-heading fst-italic" style="font-size: 19px; line-height: 1.65;">
+                        “Writing inside PoetryVerse feels like opening a leather-bound herbarium at dawn. The eucalyptus manuscript framing and PDF anthology export helped me assemble my first chapbook.”
+                    </p>
+                    <div class="mt-3 pt-2" style="border-top: 1px solid rgba(161,139,80,0.25); font-size: 12.5px; color: #60604D;">
+                        <strong style="color: #25251E;">Clara Evangeline Vance</strong> • Author of <em>Herbarium of the Changing Year</em>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="manuscript-card">
+                    <p class="serif-heading fst-italic" style="font-size: 19px; line-height: 1.65;">
+                        “The distraction-free Zen mode and live stanza counter transformed my evening writing habit. My 21-day writing streak has never felt more peaceful or rewarding.”
+                    </p>
+                    <div class="mt-3 pt-2" style="border-top: 1px solid rgba(161,139,80,0.25); font-size: 12.5px; color: #60604D;">
+                        <strong style="color: #25251E;">Julian Hawthorne</strong> • Sonneteer &amp; Classical Translator
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="manuscript-card">
+                    <p class="serif-heading fst-italic" style="font-size: 19px; line-height: 1.65;">
+                        “Finally, a literary desktop workspace that honors typography. Cormorant Garamond on warm ivory paper makes every draft feel worthy of preservation.”
+                    </p>
+                    <div class="mt-3 pt-2" style="border-top: 1px solid rgba(161,139,80,0.25); font-size: 12.5px; color: #60604D;">
+                        <strong style="color: #25251E;">Elena Rostova</strong> • Editor, <em>Plumwood Lyric Review</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========================================================================
+     7. EDITORIAL FOOTER
+     ======================================================================== -->
+<footer style="background-color: #25251E; color: #D9D0B9; border-top: 2px solid #A18B50;">
+    <div class="container py-5">
+        <div class="row g-4 justify-content-between">
+            <div class="col-lg-4">
+                <div class="serif-heading text-white" style="font-size: 28px;">
+                    <i class="fa-solid fa-feather-pointed me-2" style="color: #A18B50;"></i>PoetryVerse
+                </div>
+                <div class="script-accent mb-2" style="font-size: 20px; color: #C8B276;">
+                    Where words find their forever.
+                </div>
+                <p style="font-size: 13.5px; color: #9E9B87;">
+                    A luxury editorial poetry writing and collection management platform built with Java Spring Boot, MySQL, and timeless botanical craft.
+                </p>
+            </div>
+            <div class="col-6 col-lg-2">
+                <div class="label-editorial" style="color: #C8B276;">Sanctuary</div>
+                <ul class="list-unstyled d-flex flex-column gap-2 mt-2" style="font-size: 13.5px;">
+                    <li><a th:href="@{/dashboard}">Main Dashboard</a></li>
+                    <li><a th:href="@{/library}">Poetry Library</a></li>
+                    <li><a th:href="@{/editor}">Writing Editor</a></li>
+                    <li><a th:href="@{/collections}">Collections</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-lg-2">
+                <div class="label-editorial" style="color: #C8B276;">Craft &amp; Muse</div>
+                <ul class="list-unstyled d-flex flex-column gap-2 mt-2" style="font-size: 13.5px;">
+                    <li><a th:href="@{/templates}">Poetry Templates</a></li>
+                    <li><a th:href="@{/discover}">Discover &amp; Prompts</a></li>
+                    <li><a th:href="@{/journal}">Writing Journal</a></li>
+                    <li><a th:href="@{/statistics}">Analytics &amp; Insights</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3">
+                <div class="label-editorial" style="color: #C8B276;">Demo Poet Access</div>
+                <p style="font-size: 12.5px; color: #D9D0B9;" class="mt-2 mb-2">
+                    Explore our pre-populated poet sanctuary immediately:
+                </p>
+                <div class="p-2 rounded" style="background: rgba(245,240,229,0.06); border: 1px solid rgba(161,139,80,0.3); font-size: 12px;">
+                    <div><strong>Username:</strong> <code>clara_vance</code></div>
+                    <div><strong>Password:</strong> <code>PoetVerse2026!</code></div>
+                </div>
+            </div>
+        </div>
+        <div class="pt-4 mt-4 d-flex flex-wrap justify-content-between align-items-center"
+             style="border-top: 1px solid rgba(217,208,185,0.12); font-size: 12px; color: #9E9B87;">
+            <span>&copy; 2026 PoetryVerse Literary Sanctuary. All Rights Reserved.</span>
+            <span>www.poetryverse.art • Designed with Vintage Botanical Aesthetics</span>
+        </div>
+    </div>
+</footer>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+</body>
+</html>

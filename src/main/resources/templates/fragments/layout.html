@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- ========================================================================
+     1. COMMON HEAD FRAGMENT
+     ======================================================================== -->
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle != null ? pageTitle + ' — PoetryVerse' : 'PoetryVerse — Where Words Find Their Forever'}">PoetryVerse</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <!-- Font Awesome 6.5 Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+    <!-- PoetryVerse Luxury Editorial Stylesheet -->
+    <link th:href="@{/css/editorial.css}" rel="stylesheet"/>
+</head>
+
+<body>
+
+<!-- ========================================================================
+     2. WORKSPACE SIDEBAR FRAGMENT (SECTION 5 & IMAGE 2)
+     ======================================================================== -->
+<aside th:fragment="sidebar" class="workspace-sidebar">
+    <div class="sidebar-brand">
+        <a th:href="@{/}" class="sidebar-brand-title">
+            <i class="fa-solid fa-feather-pointed" style="color: #C8B276; font-size: 21px;"></i>
+            <span>PoetryVerse</span>
+        </a>
+        <div class="sidebar-brand-tagline">Where words find their forever</div>
+    </div>
+
+    <div class="px-3 pt-3 pb-1">
+        <a th:href="@{/editor}" class="btn-editorial btn-editorial-gold w-100" style="padding: 10px 14px;">
+            <i class="fa-solid fa-pen-nib"></i>
+            <span>Write a New Poem</span>
+        </a>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Sanctuary</div>
+        <a th:href="@{/dashboard}" class="sidebar-link" th:classappend="${activeNav == 'dashboard'} ? 'active'">
+            <i class="fa-solid fa-house-chimney-window"></i>
+            <span>Dashboard</span>
+        </a>
+        <a th:href="@{/library}" class="sidebar-link" th:classappend="${activeNav == 'library'} ? 'active'">
+            <i class="fa-solid fa-book-open"></i>
+            <span>My Poems</span>
+        </a>
+        <a th:href="@{/editor}" class="sidebar-link" th:classappend="${activeNav == 'editor'} ? 'active'">
+            <i class="fa-solid fa-feather"></i>
+            <span>Poetry Editor</span>
+        </a>
+        <a th:href="@{/collections}" class="sidebar-link" th:classappend="${activeNav == 'collections'} ? 'active'">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Collections</span>
+        </a>
+        <a th:href="@{/favorites}" class="sidebar-link" th:classappend="${activeNav == 'favorites'} ? 'active'">
+            <i class="fa-solid fa-heart"></i>
+            <span>Favorites</span>
+        </a>
+
+        <div class="sidebar-section-label">Muse &amp; Craft</div>
+        <a th:href="@{/journal}" class="sidebar-link" th:classappend="${activeNav == 'journal'} ? 'active'">
+            <i class="fa-solid fa-book-journal-whills"></i>
+            <span>Writing Journal</span>
+        </a>
+        <a th:href="@{/templates}" class="sidebar-link" th:classappend="${activeNav == 'templates'} ? 'active'">
+            <i class="fa-solid fa-scroll"></i>
+            <span>Templates</span>
+        </a>
+        <a th:href="@{/discover}" class="sidebar-link" th:classappend="${activeNav == 'discover'} ? 'active'">
+            <i class="fa-solid fa-compass"></i>
+            <span>Discover</span>
+        </a>
+        <a th:href="@{/statistics}" class="sidebar-link" th:classappend="${activeNav == 'statistics'} ? 'active'">
+            <i class="fa-solid fa-chart-column"></i>
+            <span>Statistics</span>
+        </a>
+
+        <div class="sidebar-section-label">Poet's Study</div>
+        <a th:href="@{/profile}" class="sidebar-link" th:classappend="${activeNav == 'profile'} ? 'active'">
+            <i class="fa-solid fa-user-pen"></i>
+            <span>Poet Profile</span>
+        </a>
+        <a th:href="@{/settings}" class="sidebar-link" th:classappend="${activeNav == 'settings'} ? 'active'">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Settings</span>
+        </a>
+        <a th:href="@{/about}" class="sidebar-link" th:classappend="${activeNav == 'about'} ? 'active'">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>About &amp; Help</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer" th:if="${currentUser != null}">
+        <div class="d-flex align-items-center justify-content-between">
+            <a th:href="@{/profile}" class="d-flex align-items-center gap-2 text-truncate" style="max-width: 175px;">
+                <img th:src="${currentUser.avatarUrl != null ? currentUser.avatarUrl : '/images/avatar-poet.svg'}"
+                     alt="Poet" style="width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid #A18B50; object-fit: cover;"/>
+                <div class="text-truncate">
+                    <div style="font-size: 13px; font-weight: 500; color: #F5F0E5;" class="text-truncate"
+                         th:text="${currentUser.penName}">C. E. Vance</div>
+                    <div style="font-size: 11px; color: #C8B276;">
+                        <i class="fa-solid fa-fire-flame-curved me-1"></i>
+                        <span th:text="${currentUser.currentStreak + ' day streak'}">7 day streak</span>
+                    </div>
+                </div>
+            </a>
+            <a th:href="@{/logout}" title="Sign Out of Sanctuary"
+               style="color: rgba(245,240,229,0.7); padding: 6px 8px; border-radius: 4px;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </div>
+</aside>
+
+<!-- ========================================================================
+     3. WORKSPACE TOPBAR FRAGMENT (IMAGE 2)
+     ======================================================================== -->
+<header th:fragment="topbar(headingText)" class="workspace-topbar">
+    <div class="d-flex align-items-center gap-3">
+        <button type="button" class="btn btn-sm d-lg-none" onclick="PoetryVerse.toggleSidebarMobile()"
+                style="border: 1px solid var(--border-gold); color: var(--text-primary);">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="serif-heading mb-0" style="font-size: 28px; font-weight: 600;" th:text="${headingText}">Dashboard</h2>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+        <form th:action="@{/library}" method="get" class="topbar-search-pill d-none d-md-block">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" name="search" placeholder="Search manuscripts, verses, or tags..."
+                   th:value="${selectedSearch != null ? selectedSearch : ''}"/>
+        </form>
+
+        <button type="button" class="btn-editorial btn-editorial-outline" style="padding: 8px 16px;"
+                onclick="PoetryVerse.inspireMe()" title="Generate a Random Writing Prompt">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--antique-gold);"></i>
+            <span class="d-none d-sm-inline">Inspire Me</span>
+        </button>
+
+        <a th:href="@{/profile}" class="d-flex align-items-center gap-2" th:if="${currentUser != null}" title="Poet Profile">
+            <img th:src="${currentUser.avatarUrl != null ? currentUser.avatarUrl : '/images/avatar-poet.svg'}"
+                 alt="Poet Avatar"
+                 style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--antique-gold); object-fit: cover;"/>
+        </a>
+    </div>
+</header>
+
+<!-- ========================================================================
+     4. SHARED MODALS & SCRIPTS FRAGMENT
+     ======================================================================== -->
+<div th:fragment="modalsAndScripts">
+
+    <!-- FRAMED BOTANICAL MANUSCRIPT READER MODAL (INSPIRED BY IMAGE 4 - ITHACA) -->
+    <div class="modal fade" id="manuscriptReaderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="background: transparent; border: none;">
+                <div class="frame-wood-gallery position-relative" style="border-radius: 2px;">
+                    <!-- Botanical Eucalyptus Corner Accents (Image 4) -->
+                    <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                         style="position: absolute; top: 8px; right: 8px; width: 175px; height: 175px; pointer-events: none; opacity: 0.78;"/>
+                    <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                         style="position: absolute; bottom: 8px; left: 8px; width: 155px; height: 155px; transform: rotate(180deg); pointer-events: none; opacity: 0.65;"/>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3 position-relative" style="z-index: 2;">
+                        <div class="d-flex gap-2">
+                            <span id="readerPoemGenre" class="badge-editorial badge-gold">Free Verse</span>
+                            <span id="readerPoemMood" class="badge-editorial">Contemplative</span>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="px-md-4 py-2 position-relative" style="z-index: 2;">
+                        <h2 id="readerPoemTitle" class="serif-heading mb-1"
+                            style="font-size: 36px; font-weight: 600; color: #25251E; letter-spacing: 0.04em;">Ithaca</h2>
+                        <div id="readerPoemSubtitle" class="serif-heading fst-italic mb-2"
+                             style="font-size: 18px; color: #60604D;">Subtitle</div>
+                        <div style="height: 1px; background: linear-gradient(90deg, rgba(161,139,80,0.6), transparent); margin: 14px 0 24px;"></div>
+
+                        <pre id="readerPoemContent"
+                             style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; line-height: 1.85; color: #25251E; white-space: pre-wrap; background: transparent; border: none; padding: 0; margin: 0 0 28px;"></pre>
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-center pt-3"
+                             style="border-top: 1px solid rgba(161, 139, 80, 0.3);">
+                            <span id="readerPoemStats" style="font-size: 12px; color: #60604D; font-style: italic;"></span>
+                            <div class="d-flex flex-wrap gap-2 mt-2 mt-sm-0">
+                                <a id="readerEditLink" href="/editor" class="btn-editorial btn-editorial-olive" style="padding: 7px 14px;">
+                                    <i class="fa-solid fa-pen-nib"></i> Edit
+                                </a>
+                                <button type="button" onclick="PoetryVerse.printCurrentModalPoem()"
+                                        class="btn-editorial btn-editorial-outline" style="padding: 7px 12px;">
+                                    <i class="fa-solid fa-print"></i> Print
+                                </button>
+                                <a id="readerPdfLink" href="#" class="btn-editorial btn-editorial-outline" style="padding: 7px 12px;">
+                                    <i class="fa-solid fa-file-pdf"></i> PDF
+                                </a>
+                                <a id="readerDocxLink" href="#" class="btn-editorial btn-editorial-outline" style="padding: 7px 12px;">
+                                    <i class="fa-solid fa-file-word"></i> DOCX
+                                </a>
+                                <a id="readerTxtLink" href="#" class="btn-editorial btn-editorial-outline" style="padding: 7px 12px;">
+                                    <i class="fa-solid fa-file-lines"></i> TXT
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- "INSPIRE ME" RANDOM WRITING PROMPT MODAL (SECTION 12) -->
+    <div class="modal fade" id="inspireMeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: #353626; color: #F5F0E5; border: 2px solid #A18B50; border-radius: 6px;">
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <span class="script-accent" style="font-size: 20px; color: #C8B276;">A Spark from the Muse</span>
+                        <h4 id="inspirePromptTitle" class="serif-heading text-white mb-0" style="font-size: 26px;">The Pressed Botanical Specimen</h4>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <div id="inspirePromptGenre" class="badge-editorial badge-gold mb-3" style="color: #F5F0E5;">Free Verse • Nostalgic</div>
+                    <p id="inspirePromptText" style="font-size: 15px; line-height: 1.75; color: #EAE4D3;">
+                        Open an imaginary antique herbarium and describe a dried wildflower pressed between pages 142 and 143...
+                    </p>
+                    <div class="p-3 rounded mt-3" style="background: rgba(245,240,229,0.07); border-left: 3px solid #A18B50;">
+                        <div style="font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #C8B276; margin-bottom: 4px;">
+                            Opening Cadence Suggestion
+                        </div>
+                        <div id="inspirePromptSample" class="serif-heading fst-italic" style="font-size: 18px; color: #F5F0E5;">
+                            "Between the yellowed linen leaves, a sprig of wild thyme still remembers the rain."
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+                    <button type="button" class="btn-editorial btn-editorial-ivory-outline" onclick="PoetryVerse.inspireMe()">
+                        <i class="fa-solid fa-shuffle"></i> Another Prompt
+                    </button>
+                    <a id="inspireWriteBtn" href="/editor" class="btn-editorial btn-editorial-sage">
+                        <i class="fa-solid fa-feather-pointed"></i> Begin Writing
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server-side flash toast trigger if present -->
+    <script th:if="${toastSuccess != null}" th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            PoetryVerse.showToast([[${toastSuccess}]], 'success');
+        });
+    </script>
+
+    <!-- Bootstrap 5.3 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- PoetryVerse Core JS -->
+    <script th:src="@{/js/poetryverse.js}"></script>
+</div>
+
+</body>
+</html>

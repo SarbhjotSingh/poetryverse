@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Main Dashboard')}"></head>
+<body th:attr="data-theme=${userSettings != null ? userSettings.themeMode : 'EDITORIAL_OLIVE'}">
+
+<div class="workspace-shell">
+    <!-- Left Sidebar -->
+    <aside th:replace="~{fragments/layout :: sidebar}"></aside>
+
+    <!-- Main Content Area -->
+    <div class="workspace-main">
+        <header th:replace="~{fragments/layout :: topbar('Dashboard')}"></header>
+
+        <main class="workspace-content">
+            <!-- ============================================================
+                 1. WELCOME HERO BANNER ("Welcome back, poet.")
+                 ============================================================ -->
+            <div class="p-4 p-md-5 mb-4 rounded-2 position-relative overflow-hidden shadow-sm"
+                 style="background: linear-gradient(135deg, #353626 0%, #27281B 100%); color: #F5F0E5; border: 1px solid #A18B50;">
+                <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                     style="position: absolute; top: -10px; right: -10px; width: 220px; opacity: 0.25; pointer-events: none;"/>
+
+                <div class="row align-items-center position-relative" style="z-index: 2;">
+                    <div class="col-lg-8">
+                        <div class="script-accent" style="font-size: 24px; color: #C8B276;">
+                            Sanctuary of <span th:text="${currentUser.penName}">C. E. Vance</span>
+                        </div>
+                        <h1 class="serif-heading text-white mb-2" style="font-size: 40px; font-weight: 600;">
+                            Welcome back, poet.
+                        </h1>
+                        <p class="mb-0" style="color: #D9D0B9; max-width: 600px; font-size: 15px;">
+                            Your desk is prepared with warm ivory linen. You are currently on a
+                            <strong style="color: #C8B276;" th:text="${currentStreak + '-day writing streak'}">7-day writing streak</strong>
+                            with <strong style="color: #F5F0E5;" th:text="${totalWords}">1,420</strong> words preserved across your collections.
+                        </p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0 d-flex flex-wrap gap-2 justify-content-lg-end">
+                        <a th:href="@{/editor}" class="btn-editorial btn-editorial-sage">
+                            <i class="fa-solid fa-feather-pointed"></i> Write a New Poem
+                        </a>
+                        <a th:href="@{/journal}" class="btn-editorial btn-editorial-ivory-outline">
+                            <i class="fa-solid fa-book-journal-whills"></i> Daily Journal
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 2. FOUR KEY METRIC CARDS (VINTAGE EDITORIAL STYLING)
+                 ============================================================ -->
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Total Poems Written</span>
+                            <i class="fa-solid fa-scroll"></i>
+                        </div>
+                        <div class="olive-panel-body d-flex align-items-baseline justify-content-between">
+                            <div>
+                                <div class="serif-heading" style="font-size: 42px; font-weight: 600; line-height: 1;"
+                                     th:text="${totalPoems}">6</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">
+                                    <span th:text="${publishedCount}">5</span> published • <span th:text="${draftCount}">1</span> drafts
+                                </div>
+                            </div>
+                            <a th:href="@{/library}" class="badge-editorial badge-gold">Library &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Total Collections</span>
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <div class="olive-panel-body d-flex align-items-baseline justify-content-between">
+                            <div>
+                                <div class="serif-heading" style="font-size: 42px; font-weight: 600; line-height: 1;"
+                                     th:text="${totalCollections}">7</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">
+                                    Curated thematic folios
+                                </div>
+                            </div>
+                            <a th:href="@{/collections}" class="badge-editorial badge-gold">Explore &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Favorite Poems</span>
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <div class="olive-panel-body d-flex align-items-baseline justify-content-between">
+                            <div>
+                                <div class="serif-heading" style="font-size: 42px; font-weight: 600; line-height: 1;"
+                                     th:text="${totalFavorites}">3</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">
+                                    Starred heirloom verses
+                                </div>
+                            </div>
+                            <a th:href="@{/favorites}" class="badge-editorial badge-gold">Reading Room &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Total Words Written</span>
+                            <i class="fa-solid fa-pen-fancy"></i>
+                        </div>
+                        <div class="olive-panel-body d-flex align-items-baseline justify-content-between">
+                            <div>
+                                <div class="serif-heading" style="font-size: 42px; font-weight: 600; line-height: 1;"
+                                     th:text="${totalWords}">482</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">
+                                    <span th:text="${totalLines}">68</span> poetic lines composed
+                                </div>
+                            </div>
+                            <span class="badge-editorial">
+                                <i class="fa-solid fa-fire-flame-curved" style="color: #A18B50;"></i>
+                                <span th:text="${currentStreak + 'd streak'}">7d streak</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 3. ANALYTICS & PROGRESS ROW (DIRECTLY INSPIRED BY IMAGE 2)
+                 ============================================================ -->
+            <div class="row g-4 mb-4">
+                <!-- Overview Line Chart -->
+                <div class="col-lg-4">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Overview • Daily Cadence</span>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <div class="d-flex justify-content-between mb-2" style="font-size: 12px; color: var(--text-secondary);">
+                                <span><i class="fa-solid fa-circle me-1" style="color: #353626; font-size: 8px;"></i>Words Composed</span>
+                                <span>Last 14 Days</span>
+                            </div>
+                            <div style="height: 185px;">
+                                <canvas id="dashOverviewChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Activity Bar Chart -->
+                <div class="col-lg-5">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Weekly Writing Progress</span>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <div class="d-flex justify-content-between mb-2" style="font-size: 12px; color: var(--text-secondary);">
+                                <span><i class="fa-solid fa-circle me-1" style="color: #60604D; font-size: 8px;"></i>Words by Day of Week</span>
+                                <span>Best Day: <strong th:text="${mostProductiveDay}">Sunday</strong></span>
+                            </div>
+                            <div style="height: 185px;">
+                                <canvas id="dashWeekdayChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Circular Progress Ring & Writing Goals (Image 2 Right Column) -->
+                <div class="col-lg-3">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Sanctuary Goals</span>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <div class="olive-panel-body d-flex flex-column justify-content-between">
+                            <div class="d-flex align-items-center justify-content-around py-2">
+                                <div class="position-relative" style="width: 112px; height: 112px;">
+                                    <canvas id="dashGoalRingChart"></canvas>
+                                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                        <div style="font-size: 20px; font-weight: 600;" th:text="${weeklyGoalPct + '%'}">78%</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 13.5px; font-weight: 600; color: var(--text-primary);">• Weekly Progress</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);"
+                                         th:text="${weeklyWordsSum + ' / ' + weeklyWordGoal + ' words'}">1400 / 1750 words</div>
+                                    <div class="mt-2" style="font-size: 12px; color: var(--antique-gold);">
+                                        Favorite Genre:<br/>
+                                        <strong th:text="${favoriteGenre}">Nature Poetry</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2" style="border-top: 1px solid rgba(96,96,77,0.2); font-size: 12px;">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Published Folios</span>
+                                    <span th:text="${publishedPct + '%'}">83%</span>
+                                </div>
+                                <div class="progress" style="height: 6px; background-color: rgba(96,96,77,0.2);">
+                                    <div class="progress-bar" role="progressbar"
+                                         th:style="'width:' + ${publishedPct} + '%; background-color: #353626;'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 4. RECENTLY EDITED POEMS & INSPIRATION SIDEBAR
+                 ============================================================ -->
+            <div class="row g-4">
+                <!-- Recently Edited Manuscripts -->
+                <div class="col-lg-8">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="script-accent" style="font-size: 22px;">From Your Desk</span>
+                            <h3 class="serif-heading mb-0" style="font-size: 28px; font-weight: 600;">Recently Edited Manuscripts</h3>
+                        </div>
+                        <a th:href="@{/library}" class="btn-editorial btn-editorial-outline" style="padding: 7px 16px;">
+                            View Entire Library
+                        </a>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(recentPoems)}" class="manuscript-card text-center py-5">
+                        <div class="script-accent" style="font-size: 28px;">Your parchment awaits</div>
+                        <p class="text-muted mb-3">You have not composed any poems yet. Begin your first manuscript now.</p>
+                        <div>
+                            <a th:href="@{/editor}" class="btn-editorial btn-editorial-olive">Write Your First Poem</a>
+                        </div>
+                    </div>
+
+                    <div class="row g-3" th:if="${!#lists.isEmpty(recentPoems)}">
+                        <div class="col-md-6" th:each="poem : ${recentPoems}">
+                            <div class="manuscript-card">
+                                <img th:src="@{/images/botanical-eucalyptus.svg}" alt="" class="manuscript-corner-leaf"/>
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge-editorial badge-gold" th:text="${poem.genre}">Nature Poetry</span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge-editorial" th:text="${poem.status}">PUBLISHED</span>
+                                            <button type="button" class="btn btn-sm p-0 border-0"
+                                                    th:onclick="'PoetryVerse.toggleFavorite(' + ${poem.id} + ', this)'"
+                                                    title="Toggle Favorite">
+                                                <i th:class="${poem.favorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"
+                                                   th:style="${poem.favorite ? 'color:#A18B50;' : ''}"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <h4 class="serif-heading mb-1" style="font-size: 24px; font-weight: 600; cursor: pointer;"
+                                        th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                        th:text="${poem.title}">Poem Title</h4>
+                                    <div th:if="${poem.subtitle != null and !poem.subtitle.isEmpty()}"
+                                         class="serif-heading fst-italic" style="font-size: 15px; color: var(--text-secondary);"
+                                         th:text="${poem.subtitle}">Subtitle</div>
+
+                                    <div class="manuscript-verse-preview" th:text="${poem.excerpt}"></div>
+                                </div>
+
+                                <div class="pt-2 d-flex justify-content-between align-items-center"
+                                     style="border-top: 1px solid rgba(161,139,80,0.22); font-size: 12px; color: var(--text-secondary);">
+                                    <span th:text="${poem.wordCount + ' words • ' + poem.lineCount + ' lines'}">64 words</span>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-sm p-1"
+                                                th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                                title="Read Framed Manuscript">
+                                            <i class="fa-solid fa-eye" style="color: var(--deep-olive);"></i>
+                                        </button>
+                                        <a th:href="@{'/editor/' + ${poem.id}}" class="btn btn-sm p-1" title="Edit Poem">
+                                            <i class="fa-solid fa-pen-nib" style="color: var(--antique-gold);"></i>
+                                        </a>
+                                        <a th:href="@{'/api/poems/' + ${poem.id} + '/export/pdf'}" class="btn btn-sm p-1" title="Export PDF">
+                                            <i class="fa-solid fa-file-pdf" style="color: var(--muted-olive);"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Daily Quote, Random Poem Suggestion & Recent Journal -->
+                <div class="col-lg-4 d-flex flex-column gap-4">
+                    <!-- Daily Inspirational Quote Card -->
+                    <div class="p-4 rounded-1 shadow-sm position-relative overflow-hidden"
+                         style="background-color: #353626; color: #F5F0E5; border: 1px solid #A18B50;">
+                        <div class="script-accent" style="font-size: 23px; color: #C8B276;">Daily Inspirational Quote</div>
+                        <blockquote class="serif-heading fst-italic my-2" style="font-size: 20px; line-height: 1.55; color: #FAF7F0;"
+                                    th:text="${dailyQuote != null ? '“' + dailyQuote.promptText + '”' : '“Keep Ithaca always in your mind.”'}">
+                        </blockquote>
+                        <div style="font-size: 12px; color: #D9D0B9; letter-spacing: 0.08em; text-transform: uppercase;"
+                             th:text="${dailyQuote != null ? '— ' + dailyQuote.authorAttribution : '— Constantine P. Cavafy'}">
+                        </div>
+                    </div>
+
+                    <!-- Random Poem Suggestion from Library -->
+                    <div class="manuscript-card" th:if="${suggestedPoem != null}">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge-editorial badge-gold">Revisit from Your Archive</span>
+                                <i class="fa-solid fa-feather" style="color: #A18B50;"></i>
+                            </div>
+                            <h4 class="serif-heading mb-1" style="font-size: 22px;" th:text="${suggestedPoem.title}">Suggested Poem</h4>
+                            <p class="serif-heading fst-italic mb-3" style="font-size: 16.5px; color: var(--text-secondary); white-space: pre-line;"
+                               th:text="${suggestedPoem.excerpt}"></p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2"
+                             style="border-top: 1px solid rgba(161,139,80,0.22);">
+                            <button type="button" class="btn-editorial btn-editorial-outline" style="padding: 6px 14px;"
+                                    th:onclick="'PoetryVerse.openManuscriptModal(' + ${suggestedPoem.id} + ')'">
+                                Read Full Verse
+                            </button>
+                            <a th:href="@{'/editor/' + ${suggestedPoem.id}}" style="font-size: 12px; color: #A18B50; font-weight: 600;">
+                                Refine &rarr;
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Writing Prompt Spark -->
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Creative Prompt Suggestion</span>
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <h5 class="serif-heading mb-1" style="font-size: 21px; font-weight: 600;"
+                                th:text="${randomPrompt.title}">Prompt Title</h5>
+                            <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px;"
+                               th:text="${randomPrompt.promptText}"></p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button type="button" class="btn-editorial btn-editorial-outline" style="padding: 7px 14px;"
+                                        onclick="PoetryVerse.inspireMe()">
+                                    Shuffle
+                                </button>
+                                <a th:href="@{'/editor?promptId=' + ${randomPrompt.id}}" class="btn-editorial btn-editorial-olive" style="padding: 7px 16px;">
+                                    Write Prompt
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const dailyLabels = [[${dailyLabels}]];
+        const dailyWords = [[${dailyWords}]];
+        const weekdayLabels = [[${weekdayLabels}]];
+        const weekdayValues = [[${weekdayValues}]];
+        const weeklyGoalPct = [[${weeklyGoalPct}]];
+
+        // 1. Overview Line Chart (Image 2 Style)
+        const ctxOverview = document.getElementById('dashOverviewChart');
+        if (ctxOverview) {
+            new Chart(ctxOverview, {
+                type: 'line',
+                data: {
+                    labels: dailyLabels,
+                    datasets: [{
+                        label: 'Words Written',
+                        data: dailyWords,
+                        borderColor: '#353626',
+                        backgroundColor: 'rgba(161, 139, 80, 0.16)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 2.5,
+                        pointBackgroundColor: '#A18B50'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 7 } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(96,96,77,0.14)' }, ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        // 2. Weekday Bar Chart (Image 2 Style)
+        const ctxWeekday = document.getElementById('dashWeekdayChart');
+        if (ctxWeekday) {
+            new Chart(ctxWeekday, {
+                type: 'bar',
+                data: {
+                    labels: weekdayLabels,
+                    datasets: [{
+                        label: 'Words',
+                        data: weekdayValues,
+                        backgroundColor: ['#353626', '#60604D', '#353626', '#A18B50', '#60604D', '#353626', '#787962'],
+                        borderRadius: 3,
+                        barPercentage: 0.58
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(96,96,77,0.14)' }, ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        // 3. Circular Goal Ring (Image 2 Style)
+        const ctxRing = document.getElementById('dashGoalRingChart');
+        if (ctxRing) {
+            const pct = Math.min(100, Math.max(5, weeklyGoalPct || 65));
+            new Chart(ctxRing, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [pct, 100 - pct],
+                        backgroundColor: ['#353626', 'rgba(96, 96, 77, 0.22)'],
+                        borderWidth: 0,
+                        cutout: '76%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Poetry Templates &amp; Forms')}"></head>
+<body th:attr="data-theme=${userSettings != null ? userSettings.themeMode : 'EDITORIAL_OLIVE'}">
+
+<div class="workspace-shell">
+    <aside th:replace="~{fragments/layout :: sidebar}"></aside>
+
+    <div class="workspace-main">
+        <header th:replace="~{fragments/layout :: topbar('Poetry Templates')}"></header>
+
+        <main class="workspace-content">
+            <!-- Header Banner -->
+            <div class="p-4 p-md-5 mb-4 rounded-2 position-relative overflow-hidden shadow-sm"
+                 style="background-color: #353626; color: #F5F0E5; border: 1px solid #A18B50;">
+                <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                     style="position: absolute; top: -10px; right: -10px; width: 210px; opacity: 0.25; pointer-events: none;"/>
+                <div class="position-relative" style="z-index: 2; max-width: 720px;">
+                    <span class="script-accent" style="font-size: 25px; color: #C8B276;">Architectural Forms &amp; Meter</span>
+                    <h1 class="serif-heading text-white mb-2" style="font-size: 38px; font-weight: 600;">
+                        Classical &amp; Contemporary Poetry Templates
+                    </h1>
+                    <p class="mb-0" style="color: #D9D0B9; font-size: 15px;">
+                        Select any of the eight poetic forms below to open the Writing Sanctuary pre-populated with structural scaffolding, syllable guides, and opening cadence lines.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 8 Templates Grid -->
+            <div class="row g-4">
+                <div class="col-md-6 col-xl-6" th:each="tpl : ${templates}">
+                    <div class="manuscript-card">
+                        <img th:src="@{/images/botanical-eucalyptus.svg}" alt="" class="manuscript-corner-leaf"/>
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge-editorial badge-gold" th:text="${tpl.genre}">Sonnet</span>
+                                <span class="badge-editorial" th:text="'Mood: ' + ${tpl.mood}">Romantic</span>
+                            </div>
+
+                            <h3 class="serif-heading mb-0" style="font-size: 28px; font-weight: 600;"
+                                th:text="${tpl.name}">Classical Sonnet</h3>
+                            <div class="serif-heading fst-italic mb-3" style="font-size: 16px; color: var(--text-secondary);"
+                                 th:text="${tpl.subtitle}">Subtitle</div>
+
+                            <div class="p-3 rounded mb-3"
+                                 style="background-color: var(--card-beige); border-left: 3px solid #A18B50; font-size: 13px;">
+                                <div class="mb-1">
+                                    <strong style="color: var(--deep-olive);">Structure:</strong>
+                                    <span th:text="${tpl.structureRule}"></span>
+                                </div>
+                                <div>
+                                    <strong style="color: var(--deep-olive);">Cadence &amp; Meter:</strong>
+                                    <span th:text="${tpl.meterNote}"></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div style="font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px;">
+                                    Sample Opening Lines
+                                </div>
+                                <blockquote class="serif-heading fst-italic mb-0"
+                                            style="font-size: 18.5px; color: var(--text-primary); line-height: 1.6;"
+                                            th:text="'“' + ${tpl.sampleExcerpt} + '”'">
+                                </blockquote>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 d-flex justify-content-between align-items-center"
+                             style="border-top: 1px solid rgba(161,139,80,0.25);">
+                            <span style="font-size: 12px; color: var(--text-secondary);">Ready-to-write scaffold</span>
+                            <a th:href="@{'/editor?template=' + ${tpl.key}}" class="btn-editorial btn-editorial-olive">
+                                <i class="fa-solid fa-feather-pointed"></i> Use This Template
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+</body>
+</html>

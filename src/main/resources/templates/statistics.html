@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Statistics &amp; Poetic Insights')}"></head>
+<body th:attr="data-theme=${userSettings != null ? userSettings.themeMode : 'EDITORIAL_OLIVE'}">
+
+<div class="workspace-shell">
+    <aside th:replace="~{fragments/layout :: sidebar}"></aside>
+
+    <div class="workspace-main">
+        <header th:replace="~{fragments/layout :: topbar('Statistics &amp; Insights')}"></header>
+
+        <main class="workspace-content">
+            <!-- Header -->
+            <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+                <div>
+                    <div class="script-accent" style="font-size: 24px;">Cadence &amp; Productivity</div>
+                    <h1 class="serif-heading mb-0" style="font-size: 36px; font-weight: 600;">
+                        Literary Analytics &amp; Insights
+                    </h1>
+                </div>
+                <a th:href="@{/api/backup/download}" class="btn-editorial btn-editorial-outline">
+                    <i class="fa-solid fa-download"></i> Export Archive Report
+                </a>
+            </div>
+
+            <!-- ============================================================
+                 1. SIX KPI SUMMARY CARDS
+                 ============================================================ -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-4 col-xl-2">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header"><span>Total Poems</span><i class="fa-solid fa-scroll"></i></div>
+                        <div class="olive-panel-body">
+                            <div class="serif-heading" style="font-size: 36px; font-weight: 600;" th:text="${totalPoems}">6</div>
+                            <div style="font-size: 11.5px; color: var(--text-secondary);" th:text="${publishedCount + ' published'}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl-2">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header"><span>Total Words</span><i class="fa-solid fa-pen-nib"></i></div>
+                        <div class="olive-panel-body">
+                            <div class="serif-heading" style="font-size: 36px; font-weight: 600;" th:text="${totalWords}">482</div>
+                            <div style="font-size: 11.5px; color: var(--text-secondary);" th:text="'~' + ${avgWordsPerPoem} + ' words/poem'"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl-2">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header"><span>Characters</span><i class="fa-solid fa-font"></i></div>
+                        <div class="olive-panel-body">
+                            <div class="serif-heading" style="font-size: 36px; font-weight: 600;" th:text="${totalCharacters}">2450</div>
+                            <div style="font-size: 11.5px; color: var(--text-secondary);" th:text="${totalLines + ' poetic lines'}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl-2">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header"><span>Writing Streak</span><i class="fa-solid fa-fire"></i></div>
+                        <div class="olive-panel-body">
+                            <div class="serif-heading" style="font-size: 36px; font-weight: 600;" th:text="${currentStreak + ' Days'}">9 Days</div>
+                            <div style="font-size: 11.5px; color: var(--text-secondary);" th:text="'Best: ' + ${longestStreak} + ' days'"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl-2">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header"><span>Peak Day</span><i class="fa-solid fa-calendar-check"></i></div>
+                        <div class="olive-panel-body">
+                            <div class="serif-heading" style="font-size: 26px; font-weight: 600;" th:text="${mostProductiveDay}">Sunday</div>
+                            <div style="font-size: 11.5px; color: var(--text-secondary);">Most productive day</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl-2">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header"><span>Favorite Genre</span><i class="fa-solid fa-feather"></i></div>
+                        <div class="olive-panel-body">
+                            <div class="serif-heading" style="font-size: 22px; font-weight: 600;" th:text="${favoriteGenre}">Nature Poetry</div>
+                            <div style="font-size: 11.5px; color: var(--text-secondary);" th:text="'Mood: ' + ${dominantMood}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 2. TOP ANALYTICS GRID (MATCHING REFERENCE IMAGE 2 LAYOUT)
+                 ============================================================ -->
+            <div class="row g-4 mb-4">
+                <!-- Daily Writing Activity (14-Day Line Chart) -->
+                <div class="col-lg-4">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Daily Writing Activity (14 Days)</span>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <div class="d-flex justify-content-between mb-2" style="font-size: 12px; color: var(--text-secondary);">
+                                <span>• Daily Words Written</span>
+                                <span>• Poems Edited</span>
+                            </div>
+                            <div style="height: 230px;">
+                                <canvas id="statsDailyLineChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Writing Activity (6-Month Grouped Bar Chart) -->
+                <div class="col-lg-5">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Monthly Writing Activity (6 Months)</span>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <div class="d-flex justify-content-between mb-2" style="font-size: 12px; color: var(--text-secondary);">
+                                <span>• Monthly Word Volume</span>
+                                <span>• Active Sessions</span>
+                            </div>
+                            <div style="height: 230px;">
+                                <canvas id="statsMonthlyBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goal Completion Ring (Image 2 Right Panel) -->
+                <div class="col-lg-3">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Goal Completion</span>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <div class="olive-panel-body d-flex flex-column justify-content-center align-items-center text-center">
+                            <div class="position-relative mb-3" style="width: 145px; height: 145px;">
+                                <canvas id="statsMainRingChart"></canvas>
+                                <div class="position-absolute top-50 start-50 translate-middle">
+                                    <div style="font-size: 26px; font-weight: 600;" th:text="${weeklyGoalPct + '%'}">80%</div>
+                                </div>
+                            </div>
+                            <div style="font-size: 15px; font-weight: 600;">• Weekly Word Target</div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary);"
+                                 th:text="${weeklyWordsSum + ' of ' + weeklyWordGoal + ' words written'}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 3. BOTTOM ANALYTICS GRID (COLLECTION, GENRE & WEEKDAY)
+                 ============================================================ -->
+            <div class="row g-4">
+                <!-- Left Stacked Rings & Genre Breakdown -->
+                <div class="col-lg-3 d-flex flex-column gap-4">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Genre Distribution</span>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <div style="height: 195px;">
+                                <canvas id="statsGenreChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Collection Distribution Bar Chart -->
+                <div class="col-lg-6">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Collection Distribution (Poems &amp; Word Volume)</span>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <div style="height: 225px;">
+                                <canvas id="statsCollectionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Tasks / Milestones Progress Bars (Image 2 Bottom Right) -->
+                <div class="col-lg-3">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Poetic Milestones</span>
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <div class="olive-panel-body d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between mb-1" style="font-size: 12.5px;">
+                                    <span>Published Folios</span>
+                                    <span th:text="${publishedPct + '%'}">80%</span>
+                                </div>
+                                <div class="progress mb-3" style="height: 7px; background: rgba(96,96,77,0.2);">
+                                    <div class="progress-bar" th:style="'width:' + ${publishedPct} + '%; background:#353626;'"></div>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-1" style="font-size: 12.5px;">
+                                    <span>Daily Word Goal (<span th:text="${dailyWordGoal}">250</span>w)</span>
+                                    <span th:text="${dailyGoalPct + '%'}">65%</span>
+                                </div>
+                                <div class="progress mb-3" style="height: 7px; background: rgba(96,96,77,0.2);">
+                                    <div class="progress-bar" th:style="'width:' + ${dailyGoalPct} + '%; background:#60604D;'"></div>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-1" style="font-size: 12.5px;">
+                                    <span>30-Day Streak Milestone</span>
+                                    <span th:text="${T(java.lang.Math).min(100, (currentStreak * 100) / 30) + '%'}">30%</span>
+                                </div>
+                                <div class="progress mb-2" style="height: 7px; background: rgba(96,96,77,0.2);">
+                                    <div class="progress-bar"
+                                         th:style="'width:' + ${T(java.lang.Math).min(100, (currentStreak * 100) / 30)} + '%; background:#A18B50;'"></div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2" style="border-top: 1px solid rgba(96,96,77,0.2); font-size: 12px; color: var(--text-secondary);">
+                                Journal Reflections: <strong th:text="${totalJournalEntries}">5</strong> entries
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const dailyLabels = [[${dailyLabels}]];
+        const dailyWords = [[${dailyWords}]];
+        const monthlyLabels = [[${monthlyLabels}]];
+        const monthlyWords = [[${monthlyWords}]];
+        const genreLabels = [[${genreLabels}]];
+        const genreValues = [[${genreValues}]];
+        const colLabels = [[${collectionLabels}]];
+        const colPoems = [[${collectionPoemCounts}]];
+        const colWords = [[${collectionWordCounts}]];
+        const weeklyGoalPct = [[${weeklyGoalPct}]];
+
+        // 1. Daily Line Chart
+        new Chart(document.getElementById('statsDailyLineChart'), {
+            type: 'line',
+            data: {
+                labels: dailyLabels,
+                datasets: [{
+                    label: 'Words Written',
+                    data: dailyWords,
+                    borderColor: '#353626',
+                    backgroundColor: 'rgba(161,139,80,0.18)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.25
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(96,96,77,0.15)' } }
+                }
+            }
+        });
+
+        // 2. Monthly Bar Chart
+        new Chart(document.getElementById('statsMonthlyBarChart'), {
+            type: 'bar',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Monthly Words',
+                    data: monthlyWords,
+                    backgroundColor: ['#353626', '#60604D', '#A18B50', '#353626', '#60604D', '#353626'],
+                    borderRadius: 3,
+                    barPercentage: 0.55
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(96,96,77,0.15)' } }
+                }
+            }
+        });
+
+        // 3. Main Ring Chart
+        const pct = Math.min(100, Math.max(5, weeklyGoalPct || 75));
+        new Chart(document.getElementById('statsMainRingChart'), {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [pct, 100 - pct],
+                    backgroundColor: ['#353626', 'rgba(96,96,77,0.22)'],
+                    borderWidth: 0,
+                    cutout: '76%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+        });
+
+        // 4. Genre Doughnut Chart
+        new Chart(document.getElementById('statsGenreChart'), {
+            type: 'doughnut',
+            data: {
+                labels: genreLabels,
+                datasets: [{
+                    data: genreValues,
+                    backgroundColor: ['#353626', '#A18B50', '#60604D', '#8B3A3A', '#1F352A', '#787962'],
+                    borderWidth: 1,
+                    borderColor: '#EAE4D3'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } }
+                }
+            }
+        });
+
+        // 5. Collection Distribution Chart
+        new Chart(document.getElementById('statsCollectionChart'), {
+            type: 'bar',
+            data: {
+                labels: colLabels,
+                datasets: [
+                    {
+                        label: 'Poems in Collection',
+                        data: colPoems,
+                        backgroundColor: '#353626',
+                        borderRadius: 3
+                    },
+                    {
+                        label: 'Words (÷ 20)',
+                        data: colWords.map(w => Math.round(w / 20)),
+                        backgroundColor: '#A18B50',
+                        borderRadius: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10.5 } } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(96,96,77,0.15)' } }
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

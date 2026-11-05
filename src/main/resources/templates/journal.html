@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Writing Journal &amp; Reflections')}"></head>
+<body th:attr="data-theme=${userSettings != null ? userSettings.themeMode : 'EDITORIAL_OLIVE'}">
+
+<div class="workspace-shell">
+    <aside th:replace="~{fragments/layout :: sidebar}"></aside>
+
+    <div class="workspace-main">
+        <header th:replace="~{fragments/layout :: topbar('Writing Journal')}"></header>
+
+        <main class="workspace-content">
+            <!-- Header & Record Entry CTA -->
+            <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+                <div>
+                    <div class="script-accent" style="font-size: 24px;">Marginalia &amp; Daily Reflections</div>
+                    <h1 class="serif-heading mb-0" style="font-size: 36px; font-weight: 600;">
+                        The Poet's Writing Journal
+                    </h1>
+                </div>
+                <button type="button" class="btn-editorial btn-editorial-olive" onclick="openJournalModal(null)">
+                    <i class="fa-solid fa-feather"></i> New Journal Entry
+                </button>
+            </div>
+
+            <div class="row g-4">
+                <!-- Left Column: Interactive Calendar View & Mood Filter -->
+                <div class="col-lg-4">
+                    <div class="d-flex flex-column gap-4">
+                        <!-- Interactive Calendar Card -->
+                        <div class="olive-panel-card">
+                            <div class="olive-panel-header">
+                                <span id="calendarMonthLabel">Calendar Archive</span>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm p-0 text-white" onclick="shiftCalendarMonth(-1)">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm p-0 text-white" onclick="shiftCalendarMonth(1)">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="olive-panel-body">
+                                <div id="journalCalendarGrid" class="text-center"></div>
+                                <div class="mt-3 pt-2 d-flex justify-content-between align-items-center"
+                                     style="border-top: 1px solid rgba(96,96,77,0.2); font-size: 12px; color: var(--text-secondary);">
+                                    <span><i class="fa-solid fa-circle me-1" style="color: #A18B50; font-size: 8px;"></i>Has Entry</span>
+                                    <a th:if="${selectedDate != null}" th:href="@{/journal}" style="color: #8B3A3A;">
+                                        Clear Date Filter
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search & Mood Filter Form -->
+                        <div class="olive-panel-card">
+                            <div class="olive-panel-header">
+                                <span>Search &amp; Mood Tracker</span>
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </div>
+                            <div class="olive-panel-body">
+                                <form th:action="@{/journal}" method="get">
+                                    <div class="mb-3">
+                                        <label class="label-editorial">Search Notes or Ideas</label>
+                                        <input type="text" name="search" class="input-editorial"
+                                               placeholder="Search reflections..." th:value="${selectedSearch}"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="label-editorial">Filter by Mood</label>
+                                        <select name="mood" class="input-editorial" onchange="this.form.submit()">
+                                            <option value="ALL">All Moods</option>
+                                            <option th:each="m : ${moods}" th:value="${m}" th:text="${m}"
+                                                    th:selected="${selectedMood == m}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn-editorial btn-editorial-olive w-100">Filter Journal</button>
+                                        <a th:href="@{/journal}" class="btn-editorial btn-editorial-outline">Reset</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Journal Entries Timeline -->
+                <div class="col-lg-8">
+                    <div th:if="${#lists.isEmpty(entries)}" class="manuscript-card text-center py-5">
+                        <div class="script-accent" style="font-size: 30px;">No journal reflections found</div>
+                        <p class="text-muted mb-3">Record your daily observations, weather notes, and poetic sparks here.</p>
+                        <div>
+                            <button type="button" class="btn-editorial btn-editorial-olive" onclick="openJournalModal(null)">
+                                Write Today's Entry
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column gap-3" th:if="${!#lists.isEmpty(entries)}">
+                        <div class="manuscript-card" th:each="entry : ${entries}">
+                            <div>
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge-editorial badge-gold">
+                                            <i class="fa-regular fa-calendar me-1"></i>
+                                            <span th:text="${#temporals.format(entry.entryDate, 'MMMM d, yyyy')}">Nov 4, 2026</span>
+                                        </span>
+                                        <span class="badge-editorial" th:text="'Mood: ' + ${entry.mood}">Mood: Serene</span>
+                                        <span class="badge-editorial" th:if="${entry.weather != null}" th:text="${entry.weather}">Mist</span>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-1">
+                                        <button type="button" class="btn btn-sm p-1"
+                                                th:onclick="'loadAndEditJournal(' + ${entry.id} + ')'"
+                                                title="Edit Entry">
+                                            <i class="fa-solid fa-pen-nib" style="color: #A18B50;"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm p-1"
+                                                th:onclick="'deleteJournalById(' + ${entry.id} + ')'"
+                                                title="Delete Entry">
+                                            <i class="fa-regular fa-trash-can" style="color: #8B3A3A;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <h3 class="serif-heading mb-2" style="font-size: 27px; font-weight: 600;"
+                                    th:text="${entry.title}">Entry Title</h3>
+
+                                <p style="font-family: var(--font-serif); font-size: 19px; line-height: 1.75; white-space: pre-line; color: var(--text-primary);"
+                                   th:text="${entry.content}"></p>
+
+                                <div th:if="${entry.inspirationSpark != null and !entry.inspirationSpark.isEmpty()}"
+                                     class="p-3 rounded mt-3"
+                                     style="background-color: rgba(161,139,80,0.1); border-left: 3px solid #A18B50;">
+                                    <div style="font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #7A6736; font-weight: 600;">
+                                        Inspiration Spark / Line Seed
+                                    </div>
+                                    <div class="serif-heading fst-italic" style="font-size: 18px;"
+                                         th:text="'“' + ${entry.inspirationSpark} + '”'"></div>
+                                </div>
+                            </div>
+
+                            <div class="pt-3 mt-3 d-flex justify-content-between align-items-center"
+                                 style="border-top: 1px solid rgba(161,139,80,0.22); font-size: 12px; color: var(--text-secondary);">
+                                <span>
+                                    <i class="fa-solid fa-location-dot me-1" style="color: #A18B50;"></i>
+                                    <span th:text="${entry.locationNote != null ? entry.locationNote : 'Writing Desk'}">Desk</span>
+                                    • <span th:text="${entry.wordCount + ' words'}">60 words</span>
+                                </span>
+                                <a th:href="@{/editor}" style="color: var(--deep-olive); font-weight: 600;">
+                                    Turn into Poem &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- CREATE / EDIT JOURNAL ENTRY MODAL -->
+<div class="modal fade" id="journalFormModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="background-color: #FAF7F0; border: 2px solid #A18B50;">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <span class="script-accent" style="font-size: 22px;">Daily Reflection</span>
+                    <h4 id="journalModalHeading" class="serif-heading mb-0" style="font-size: 26px;">Record Journal Entry</h4>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="journalIdInput"/>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="label-editorial">Entry Date *</label>
+                        <input type="date" id="journalDateInput" class="input-editorial"
+                               th:value="${todayDate}" required/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-editorial">Current Mood</label>
+                        <select id="journalMoodInput" class="input-editorial">
+                            <option th:each="m : ${moods}" th:value="${m}" th:text="${m}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-editorial">Weather &amp; Atmosphere</label>
+                        <input type="text" id="journalWeatherInput" class="input-editorial"
+                               placeholder="e.g. Mist &amp; Morning Dew"/>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="label-editorial">Reflection Title *</label>
+                    <input type="text" id="journalTitleInput" class="input-editorial"
+                           placeholder="e.g. Morning Light on the Herbarium Desk" required/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="label-editorial">Personal Notes &amp; Reflection *</label>
+                    <textarea id="journalContentInput" rows="5" class="input-editorial"
+                              style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 19px;"
+                              placeholder="Write freely about your thoughts, reading notes, or observations today..." required></textarea>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="label-editorial">Poetic Spark / Line Idea</label>
+                        <input type="text" id="journalSparkInput" class="input-editorial"
+                               placeholder="Capture a phrase, metaphor, or image for a future poem..."/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="label-editorial">Location</label>
+                        <input type="text" id="journalLocationInput" class="input-editorial"
+                               placeholder="Conservatory Desk"/>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn-editorial btn-editorial-outline" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" onclick="saveJournalEntry()" class="btn-editorial btn-editorial-olive">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Journal Entry
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+<script th:inline="javascript">
+    const journalDatesSet = new Set([
+        /*[# th:each="e : ${entries}"]*/
+        [[${e.entryDate.toString()}]],
+        /*[/]*/
+    ]);
+
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        renderJournalCalendar();
+    });
+
+    function shiftCalendarMonth(delta) {
+        calMonth += delta;
+        if (calMonth < 0) { calMonth = 11; calYear--; }
+        if (calMonth > 11) { calMonth = 0; calYear++; }
+        renderJournalCalendar();
+    }
+
+    function renderJournalCalendar() {
+        const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        document.getElementById('calendarMonthLabel').textContent = `${monthNames[calMonth]} ${calYear}`;
+
+        const firstDay = new Date(calYear, calMonth, 1).getDay();
+        const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+        let html = '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; font-size:11px; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">';
+        ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d => html += `<div>${d}</div>`);
+        html += '</div><div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;">';
+
+        for (let i = 0; i < firstDay; i++) {
+            html += '<div></div>';
+        }
+        for (let d = 1; d <= daysInMonth; d++) {
+            const iso = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const hasEntry = journalDatesSet.has(iso);
+            const bg = hasEntry ? '#353626' : 'rgba(96,96,77,0.1)';
+            const color = hasEntry ? '#F5F0E5' : 'var(--text-primary)';
+            const border = hasEntry ? '1px solid #A18B50' : '1px solid transparent';
+            html += `<a href="/journal?date=${iso}" style="padding:6px 2px; border-radius:4px; background:${bg}; color:${color}; border:${border}; font-size:12px; text-decoration:none;">${d}</a>`;
+        }
+        html += '</div>';
+        document.getElementById('journalCalendarGrid').innerHTML = html;
+    }
+
+    function openJournalModal(entry) {
+        document.getElementById('journalIdInput').value = entry ? entry.id : '';
+        document.getElementById('journalDateInput').value = entry ? entry.entryDate : new Date().toISOString().split('T')[0];
+        document.getElementById('journalTitleInput').value = entry ? (entry.title || '') : '';
+        document.getElementById('journalContentInput').value = entry ? (entry.content || '') : '';
+        document.getElementById('journalMoodInput').value = entry ? (entry.mood || 'Serene') : 'Serene';
+        document.getElementById('journalWeatherInput').value = entry ? (entry.weather || 'Mist & Morning Dew') : 'Mist & Morning Dew';
+        document.getElementById('journalSparkInput').value = entry ? (entry.inspirationSpark || '') : '';
+        document.getElementById('journalLocationInput').value = entry ? (entry.locationNote || 'Conservatory Desk') : 'Conservatory Desk';
+        document.getElementById('journalModalHeading').textContent = entry ? 'Edit Journal Reflection' : 'Record Journal Entry';
+
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('journalFormModal')).show();
+    }
+
+    async function loadAndEditJournal(id) {
+        const res = await fetch(`/api/journal/${id}`);
+        if (res.ok) {
+            const entry = await res.json();
+            openJournalModal(entry);
+        }
+    }
+
+    async function saveJournalEntry() {
+        const title = document.getElementById('journalTitleInput').value.trim();
+        const content = document.getElementById('journalContentInput').value.trim();
+        if (!title || !content) {
+            PoetryVerse.showToast('Please provide both a title and reflection content.', 'error');
+            return;
+        }
+        const payload = {
+            id: document.getElementById('journalIdInput').value || null,
+            entryDate: document.getElementById('journalDateInput').value,
+            title: title,
+            content: content,
+            mood: document.getElementById('journalMoodInput').value,
+            weather: document.getElementById('journalWeatherInput').value,
+            inspirationSpark: document.getElementById('journalSparkInput').value,
+            locationNote: document.getElementById('journalLocationInput').value
+        };
+        const res = await fetch('/api/journal/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+            PoetryVerse.showToast(data.message);
+            setTimeout(() => window.location.reload(), 600);
+        } else {
+            PoetryVerse.showToast(data.message || 'Error saving entry.', 'error');
+        }
+    }
+
+    async function deleteJournalById(id) {
+        if (!confirm('Delete this journal entry permanently?')) return;
+        const res = await fetch(`/api/journal/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+            PoetryVerse.showToast(data.message);
+            setTimeout(() => window.location.reload(), 550);
+        }
+    }
+</script>
+</body>
+</html>

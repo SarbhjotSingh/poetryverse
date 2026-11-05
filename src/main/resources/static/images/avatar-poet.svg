@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="240" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#C8B173"/>
+      <stop offset="50%" stop-color="#A18B50"/>
+      <stop offset="100%" stop-color="#766332"/>
+    </linearGradient>
+    <radialGradient id="bgOlive" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#4A4B37"/>
+      <stop offset="100%" stop-color="#25251E"/>
+    </radialGradient>
+  </defs>
+  <circle cx="120" cy="120" r="114" fill="url(#bgOlive)" stroke="url(#goldGrad)" stroke-width="6"/>
+  <circle cx="120" cy="120" r="104" stroke="#A18B50" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.7"/>
+  <!-- Botanical sprigs around portrait -->
+  <path d="M44 172 C52 140, 74 115, 90 95" stroke="#A18B50" stroke-width="1.5" opacity="0.55" fill="none"/>
+  <ellipse cx="58" cy="145" rx="10" ry="4" transform="rotate(-35 58 145)" fill="#60604D" opacity="0.8"/>
+  <ellipse cx="70" cy="125" rx="10" ry="4" transform="rotate(-25 70 125)" fill="#A18B50" opacity="0.6"/>
+  <!-- Stylized Poet Silhouette & Quill -->
+  <circle cx="120" cy="96" r="32" fill="#F5F0E5"/>
+  <path d="M100 88 C105 70, 138 68, 146 92 C136 84, 112 82, 100 88 Z" fill="#353626"/>
+  <path d="M68 196 C74 154, 96 138, 120 138 C144 138, 166 154, 172 196" fill="#D9D0B9"/>
+  <path d="M98 138 L120 166 L142 138" fill="#353626"/>
+  <!-- Golden Quill Accent -->
+  <path d="M148 168 C165 142, 182 115, 192 86 C175 102, 158 125, 145 156 Z" fill="url(#goldGrad)"/>
+  <line x1="140" y1="176" x2="192" y2="86" stroke="#F5F0E5" stroke-width="1.2"/>
+</svg>

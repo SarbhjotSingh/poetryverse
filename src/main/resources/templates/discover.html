@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Discover &amp; Inspiration')}"></head>
+<body th:attr="data-theme=${userSettings != null ? userSettings.themeMode : 'EDITORIAL_OLIVE'}">
+
+<div class="workspace-shell">
+    <aside th:replace="~{fragments/layout :: sidebar}"></aside>
+
+    <div class="workspace-main">
+        <header th:replace="~{fragments/layout :: topbar('Discover &amp; Inspiration')}"></header>
+
+        <main class="workspace-content">
+            <!-- ============================================================
+                 1. HERO INSPIRATION BANNER WITH "INSPIRE ME" BUTTON
+                 ============================================================ -->
+            <div class="p-4 p-md-5 mb-5 rounded-2 position-relative overflow-hidden shadow-sm"
+                 style="background: linear-gradient(135deg, #353626 0%, #1F352A 100%); color: #F5F0E5; border: 2px solid #A18B50;">
+                <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                     style="position: absolute; top: -15px; right: -15px; width: 250px; opacity: 0.28; pointer-events: none;"/>
+
+                <div class="row align-items-center position-relative" style="z-index: 2;">
+                    <div class="col-lg-8">
+                        <span class="script-accent" style="font-size: 26px; color: #C8B276;">Where Every Archway Leads to Verse</span>
+                        <h1 class="serif-heading text-white mb-2" style="font-size: 40px; font-weight: 600;">
+                            The Poet's Discovery &amp; Prompt Sanctuary
+                        </h1>
+                        <p class="mb-0" style="color: #D9D0B9; font-size: 15.5px; max-width: 640px;">
+                            Draw upon curated writing prompts, formal craft challenges, philosophical reflections, and public-domain masterpieces whenever the blank page calls for a spark.
+                        </p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                        <button type="button" onclick="PoetryVerse.inspireMe()"
+                                class="btn-editorial btn-editorial-sage py-3 px-4 shadow">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: #353626; font-size: 15px;"></i>
+                            <span>Inspire Me</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 2. DAILY INSPIRATIONAL QUOTES
+                 ============================================================ -->
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-end mb-3">
+                    <div>
+                        <span class="script-accent" style="font-size: 22px;">Words on the Craft</span>
+                        <h3 class="serif-heading mb-0" style="font-size: 30px; font-weight: 600;">Daily Inspirational Quotes</h3>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4" th:each="q : ${quotes}">
+                        <div class="p-4 h-100 rounded-1 d-flex flex-column justify-content-between"
+                             style="background-color: #353626; color: #F5F0E5; border-left: 4px solid #A18B50;">
+                            <div>
+                                <div style="color: #C8B276; font-size: 22px; margin-bottom: 6px;">
+                                    <i class="fa-solid fa-quote-left"></i>
+                                </div>
+                                <blockquote class="serif-heading fst-italic mb-3" style="font-size: 19.5px; line-height: 1.6;">
+                                    <span th:text="${q.promptText}"></span>
+                                </blockquote>
+                            </div>
+                            <div style="font-size: 12px; color: #C8B276; letter-spacing: 0.08em; text-transform: uppercase;"
+                                 th:text="'— ' + ${q.authorAttribution}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 3. CURATED WRITING PROMPTS & CHALLENGES
+                 ============================================================ -->
+            <div class="row g-4 mb-5">
+                <!-- Creative Writing Prompts -->
+                <div class="col-lg-7">
+                    <div class="mb-3">
+                        <span class="script-accent" style="font-size: 22px;">Seeds for New Stanzas</span>
+                        <h3 class="serif-heading mb-0" style="font-size: 30px; font-weight: 600;">Curated Writing Prompts</h3>
+                    </div>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="manuscript-card" th:each="pr : ${prompts}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge-editorial badge-gold" th:text="${pr.suggestedGenre}">Free Verse</span>
+                                <span class="badge-editorial" th:text="'Mood: ' + ${pr.suggestedMood}">Nostalgic</span>
+                            </div>
+                            <h4 class="serif-heading mb-1" style="font-size: 25px; font-weight: 600;" th:text="${pr.title}">Title</h4>
+                            <p style="font-size: 14.5px; color: var(--text-secondary); line-height: 1.7;" th:text="${pr.promptText}"></p>
+                            <div class="p-2 px-3 rounded mb-3" style="background: var(--card-beige); border-left: 3px solid #A18B50;">
+                                <span class="serif-heading fst-italic" style="font-size: 17px;" th:text="'“' + ${pr.sampleVerse} + '”'"></span>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <a th:href="@{'/editor?promptId=' + ${pr.id}}" class="btn-editorial btn-editorial-olive" style="padding: 8px 18px;">
+                                    <i class="fa-solid fa-feather-pointed"></i> Write From This Prompt
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Poetic Craft Challenges & Genre Lexicon -->
+                <div class="col-lg-5">
+                    <div class="mb-3">
+                        <span class="script-accent" style="font-size: 22px;">Mastery &amp; Constraint</span>
+                        <h3 class="serif-heading mb-0" style="font-size: 30px; font-weight: 600;">Poetry Writing Challenges</h3>
+                    </div>
+                    <div class="d-flex flex-column gap-3 mb-4">
+                        <div class="olive-panel-card" th:each="ch : ${challenges}">
+                            <div class="olive-panel-header">
+                                <span th:text="${ch.title}">Challenge Title</span>
+                                <span class="badge bg-dark" style="font-size: 10px;" th:text="${ch.difficulty}">Advanced</span>
+                            </div>
+                            <div class="olive-panel-body">
+                                <p style="font-size: 13.5px; color: var(--text-primary); line-height: 1.65;"
+                                   th:text="${ch.promptText}"></p>
+                                <div class="d-flex justify-content-between align-items-center pt-2"
+                                     style="border-top: 1px solid rgba(96,96,77,0.2);">
+                                    <span class="badge-editorial badge-gold" th:text="${ch.suggestedGenre}">Sonnet</span>
+                                    <a th:href="@{'/editor?promptId=' + ${ch.id}}" class="btn-editorial btn-editorial-olive" style="padding: 6px 14px;">
+                                        Accept Challenge
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Poetry Genres & Explanations -->
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Lexicon of Poetry Genres</span>
+                            <i class="fa-solid fa-book-bookmark"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <div class="mb-3 pb-2" style="border-bottom: 1px solid rgba(96,96,77,0.18);"
+                                 th:each="tpl : ${templates}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong class="serif-heading" style="font-size: 19px;" th:text="${tpl.name}">Genre</strong>
+                                    <a th:href="@{'/editor?template=' + ${tpl.key}}" style="font-size: 11px; color: #A18B50; font-weight: 600;">
+                                        Try Form &rarr;
+                                    </a>
+                                </div>
+                                <div style="font-size: 12.5px; color: var(--text-secondary);" th:text="${tpl.structureRule}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 4. FAMOUS PUBLIC-DOMAIN POETRY ANTHOLOGY (FRAMED EDITIONS)
+                 ============================================================ -->
+            <div>
+                <div class="mb-3">
+                    <span class="script-accent" style="font-size: 24px;">Timeless Public-Domain Verse</span>
+                    <h3 class="serif-heading mb-0" style="font-size: 32px; font-weight: 600;">Classical Anthology Reading Room</h3>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6" th:each="pd : ${publicDomainPoems}">
+                        <div class="frame-wood-gallery h-100 position-relative overflow-hidden">
+                            <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                                 style="position: absolute; top: 8px; right: 8px; width: 150px; opacity: 0.7; pointer-events: none;"/>
+                            <div class="position-relative" style="z-index: 2;">
+                                <span class="badge-editorial badge-gold mb-2">Public Domain Classic</span>
+                                <h4 class="serif-heading mb-0" style="font-size: 30px; font-weight: 600;" th:text="${pd.title}">Ithaca</h4>
+                                <div style="font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #60604D; margin-bottom: 16px;"
+                                     th:text="${pd.authorAttribution}">Author</div>
+                                <pre style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 18px; line-height: 1.75; white-space: pre-wrap; color: #25251E; background: transparent; border: none; padding: 0; margin-bottom: 16px;"
+                                     th:text="${pd.promptText}"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+</body>
+</html>

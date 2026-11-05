@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Poetry Writing Sanctuary')}"></head>
+<body th:attr="data-theme=${userSettings != null ? userSettings.themeMode : 'EDITORIAL_OLIVE'}">
+
+<div class="workspace-shell">
+    <aside th:replace="~{fragments/layout :: sidebar}"></aside>
+
+    <div class="workspace-main">
+        <header th:replace="~{fragments/layout :: topbar('Poetry Writing Sanctuary')}"></header>
+
+        <main class="workspace-content">
+            <!-- ============================================================
+                 1. EDITOR TOP FORMATTING & ACTION BAR
+                 ============================================================ -->
+            <div class="p-3 mb-4 rounded-2 shadow-sm d-flex flex-wrap justify-content-between align-items-center gap-2"
+                 style="background-color: #353626; color: #F5F0E5; border: 1px solid #A18B50;">
+
+                <!-- Left Typography & Rich Text Controls -->
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <!-- Font Family -->
+                    <select id="editorFontSelect" class="form-select form-select-sm"
+                            style="width: auto; background: #27281B; color: #F5F0E5; border-color: #A18B50; font-size: 12.5px;"
+                            onchange="applyEditorTypography()">
+                        <option value="Cormorant Garamond" th:selected="${poem.fontFamily == 'Cormorant Garamond'}">Cormorant Garamond</option>
+                        <option value="Playfair Display" th:selected="${poem.fontFamily == 'Playfair Display'}">Playfair Display</option>
+                        <option value="Inter" th:selected="${poem.fontFamily == 'Inter'}">Inter Sans</option>
+                        <option value="La Belle Aurore" th:selected="${poem.fontFamily == 'La Belle Aurore'}">La Belle Aurore (Script)</option>
+                        <option value="Georgia" th:selected="${poem.fontFamily == 'Georgia'}">Classical Georgia</option>
+                    </select>
+
+                    <!-- Font Size -->
+                    <select id="editorSizeSelect" class="form-select form-select-sm"
+                            style="width: auto; background: #27281B; color: #F5F0E5; border-color: #A18B50; font-size: 12.5px;"
+                            onchange="applyEditorTypography()" title="Font Size">
+                        <option value="17" th:selected="${poem.fontSize == 17}">17 pt</option>
+                        <option value="20" th:selected="${poem.fontSize == null or poem.fontSize == 20}">20 pt</option>
+                        <option value="22" th:selected="${poem.fontSize == 22}">22 pt</option>
+                        <option value="25" th:selected="${poem.fontSize == 25}">25 pt</option>
+                        <option value="28" th:selected="${poem.fontSize == 28}">28 pt</option>
+                    </select>
+
+                    <!-- Line Spacing -->
+                    <select id="editorSpacingSelect" class="form-select form-select-sm"
+                            style="width: auto; background: #27281B; color: #F5F0E5; border-color: #A18B50; font-size: 12.5px;"
+                            onchange="applyEditorTypography()" title="Line Spacing">
+                        <option value="1.5" th:selected="${poem.lineSpacing == 1.5}">1.5x Spacing</option>
+                        <option value="1.85" th:selected="${poem.lineSpacing == null or poem.lineSpacing == 1.85}">1.85x Editorial</option>
+                        <option value="2.15" th:selected="${poem.lineSpacing == 2.15}">2.15x Airy</option>
+                        <option value="2.4" th:selected="${poem.lineSpacing == 2.4}">2.4x Double</option>
+                    </select>
+
+                    <div class="vr mx-1" style="background-color: #A18B50;"></div>
+
+                    <!-- Rich Text Styling Buttons (Bold, Italic, Underline, Poetic Flourishes) -->
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-light" style="border-color: rgba(161,139,80,0.5);"
+                                onclick="wrapSelectedVerse('**', '**')" title="Bold Selection">
+                            <i class="fa-solid fa-bold"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-light" style="border-color: rgba(161,139,80,0.5);"
+                                onclick="wrapSelectedVerse('*', '*')" title="Italicize Selection">
+                            <i class="fa-solid fa-italic"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-light" style="border-color: rgba(161,139,80,0.5);"
+                                onclick="wrapSelectedVerse('__', '__')" title="Underline Selection">
+                            <i class="fa-solid fa-underline"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-light" style="border-color: rgba(161,139,80,0.5);"
+                                onclick="insertAtCursor('— ')" title="Insert Em-Dash (—)">
+                            —
+                        </button>
+                        <button type="button" class="btn btn-outline-light" style="border-color: rgba(161,139,80,0.5);"
+                                onclick="insertAtCursor('\n\n   ✦   ✦   ✦\n\n')" title="Insert Stanza Asterism">
+                            ✦
+                        </button>
+                    </div>
+
+                    <div class="vr mx-1" style="background-color: #A18B50;"></div>
+
+                    <!-- Alignment Controls -->
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" id="alignBtnLEFT" class="btn btn-outline-light"
+                                style="border-color: rgba(161,139,80,0.5);"
+                                onclick="setEditorAlignment('LEFT')" title="Left Align">
+                            <i class="fa-solid fa-align-left"></i>
+                        </button>
+                        <button type="button" id="alignBtnCENTER" class="btn btn-outline-light"
+                                style="border-color: rgba(161,139,80,0.5);"
+                                onclick="setEditorAlignment('CENTER')" title="Center Align">
+                            <i class="fa-solid fa-align-center"></i>
+                        </button>
+                        <button type="button" id="alignBtnRIGHT" class="btn btn-outline-light"
+                                style="border-color: rgba(161,139,80,0.5);"
+                                onclick="setEditorAlignment('RIGHT')" title="Right Align (Ithaca Style)">
+                            <i class="fa-solid fa-align-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Save, Preview & Zen Mode Buttons -->
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span id="autoSaveStatusBadge" style="font-size: 11.5px; color: #C8B276; margin-right: 6px;">
+                        <i class="fa-regular fa-clock me-1"></i>
+                        <span th:text="${poem.id != null ? 'Saved in Sanctuary' : 'Ready to compose'}">Ready</span>
+                    </span>
+
+                    <button type="button" class="btn-editorial btn-editorial-ivory-outline" style="padding: 8px 14px;"
+                            onclick="openLivePreviewModal()" title="Preview Framed Manuscript">
+                        <i class="fa-solid fa-eye"></i> Preview
+                    </button>
+
+                    <button type="button" class="btn-editorial btn-editorial-ivory-outline" style="padding: 8px 14px;"
+                            onclick="toggleZenWritingMode()" title="Distraction-Free Fullscreen Mode">
+                        <i class="fa-solid fa-expand"></i> <span id="zenModeLabel">Zen Mode</span>
+                    </button>
+
+                    <button type="button" class="btn-editorial btn-editorial-sage" style="padding: 8px 20px;"
+                            onclick="saveManuscript(false)">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Manuscript
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Prompt or Template Banner if loaded from Templates/Discover -->
+            <div th:if="${activeTemplate != null}" class="p-3 mb-4 rounded-1 d-flex justify-content-between align-items-center"
+                 style="background-color: rgba(161,139,80,0.14); border-left: 4px solid #A18B50;">
+                <div>
+                    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: #7A6736; font-weight: 600;">
+                        Poetic Form Guide • <span th:text="${activeTemplate.name}">Sonnet</span>
+                    </div>
+                    <div style="font-size: 13.5px; color: var(--text-primary);"
+                         th:text="${activeTemplate.structureRule + ' (' + activeTemplate.meterNote + ')'}"></div>
+                </div>
+                <a th:href="@{/templates}" class="badge-editorial badge-gold">Switch Template</a>
+            </div>
+
+            <div th:if="${activePrompt != null}" class="p-3 mb-4 rounded-1"
+                 style="background-color: rgba(53,54,38,0.09); border-left: 4px solid #353626;">
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: #60604D; font-weight: 600;">
+                    Writing Prompt • <span th:text="${activePrompt.title}">Prompt</span>
+                </div>
+                <div style="font-size: 14px; color: var(--text-primary);" th:text="${activePrompt.promptText}"></div>
+            </div>
+
+            <!-- ============================================================
+                 2. MAIN WRITING STAGE + METADATA SIDEBAR
+                 ============================================================ -->
+            <div class="row g-4">
+                <!-- Left/Center Warm Ivory Paper Writing Sheet -->
+                <div class="col-lg-8 editor-stage-col">
+                    <div id="editorPaperSurface" class="editor-paper-sheet"
+                         th:attr="data-paper=${poem.paperStyle != null ? poem.paperStyle : 'IVORY_MANUSCRIPT'}">
+
+                        <!-- Botanical Eucalyptus Corner Accents -->
+                        <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                             style="position: absolute; top: 10px; right: 10px; width: 145px; opacity: 0.45; pointer-events: none;"/>
+                        <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                             style="position: absolute; bottom: 10px; left: 10px; width: 130px; transform: rotate(180deg); opacity: 0.35; pointer-events: none;"/>
+
+                        <input type="hidden" id="poemIdInput" th:value="${poem.id}"/>
+                        <input type="hidden" id="poemAlignInput" th:value="${poem.textAlign != null ? poem.textAlign : 'LEFT'}"/>
+                        <input type="hidden" id="poemTemplateInput" th:value="${poem.templateUsed}"/>
+
+                        <!-- Title Input -->
+                        <input type="text" id="poemTitleInput" class="editor-title-input"
+                               placeholder="Title of Your Manuscript..."
+                               th:value="${poem.title}"
+                               oninput="updateLiveMetrics()"/>
+
+                        <!-- Subtitle Input -->
+                        <input type="text" id="poemSubtitleInput" class="editor-subtitle-input"
+                               placeholder="Add an optional subtitle, epigraph, or dedication..."
+                               th:value="${poem.subtitle}"/>
+
+                        <div style="height: 1px; background: linear-gradient(90deg, rgba(161,139,80,0.55), transparent); margin-bottom: 24px;"></div>
+
+                        <!-- Main Verse Textarea -->
+                        <textarea id="poemContentInput" class="editor-verse-surface"
+                                  placeholder="Begin composing your verses here upon the warm ivory page..."
+                                  oninput="updateLiveMetrics()"
+                                  th:text="${poem.content}"></textarea>
+
+                        <!-- Bottom Live Writing Statistics Ribbon -->
+                        <div class="pt-3 mt-4 d-flex flex-wrap justify-content-between align-items-center gap-2"
+                             style="border-top: 1px solid rgba(161,139,80,0.3); font-size: 12.5px; color: #60604D;">
+                            <div class="d-flex flex-wrap gap-3">
+                                <span><strong id="liveWordCount">0</strong> words</span>
+                                <span>•</span>
+                                <span><strong id="liveCharCount">0</strong> characters</span>
+                                <span>•</span>
+                                <span><strong id="liveLineCount">0</strong> lines</span>
+                                <span>•</span>
+                                <span><strong id="liveStanzaCount">0</strong> stanzas</span>
+                                <span>•</span>
+                                <span>~<strong id="liveReadTime">10s</strong> reading time</span>
+                            </div>
+                            <div>
+                                <span class="script-accent" style="font-size: 18px; color: #A18B50;"
+                                      th:text="${'— ' + currentUser.penName}">— C. E. Vance</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Metadata, Curation & Export Sidebar -->
+                <div class="col-lg-4 editor-meta-sidebar">
+                    <div class="d-flex flex-column gap-3">
+
+                        <!-- Manuscript Status, Genre & Mood -->
+                        <div class="olive-panel-card">
+                            <div class="olive-panel-header">
+                                <span>Classification &amp; Status</span>
+                                <i class="fa-solid fa-feather"></i>
+                            </div>
+                            <div class="olive-panel-body">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-7">
+                                        <label class="label-editorial">Publication Status</label>
+                                        <select id="poemStatusInput" class="input-editorial">
+                                            <option value="PUBLISHED" th:selected="${poem.status == 'PUBLISHED'}">Published Folio</option>
+                                            <option value="DRAFT" th:selected="${poem.status == 'DRAFT'}">Working Draft</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-5 d-flex align-items-end">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="poemFavoriteCheck"
+                                                   th:checked="${poem.favorite}"/>
+                                            <label class="form-check-label" for="poemFavoriteCheck" style="font-size: 13px;">
+                                                <i class="fa-solid fa-heart" style="color: #A18B50;"></i> Favorite
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="label-editorial">Poetry Genre</label>
+                                    <select id="poemGenreInput" class="input-editorial">
+                                        <option th:each="g : ${genres}" th:value="${g}" th:text="${g}"
+                                                th:selected="${poem.genre == g}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="label-editorial">Poetic Mood</label>
+                                    <select id="poemMoodInput" class="input-editorial">
+                                        <option th:each="m : ${moods}" th:value="${m}" th:text="${m}"
+                                                th:selected="${poem.mood == m}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-0">
+                                    <label class="label-editorial">Tags (Comma-separated)</label>
+                                    <input type="text" id="poemTagsInput" class="input-editorial"
+                                           placeholder="e.g. botanical, autumn, sonnet, mist"
+                                           th:value="${poem.tagsCsv}"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paper & Frame Atmosphere -->
+                        <div class="olive-panel-card">
+                            <div class="olive-panel-header">
+                                <span>Manuscript Paper &amp; Artwork</span>
+                                <i class="fa-solid fa-palette"></i>
+                            </div>
+                            <div class="olive-panel-body">
+                                <div class="mb-3">
+                                    <label class="label-editorial">Paper Surface</label>
+                                    <select id="poemPaperStyleInput" class="input-editorial" onchange="changePaperAtmosphere()">
+                                        <option value="IVORY_MANUSCRIPT" th:selected="${poem.paperStyle == 'IVORY_MANUSCRIPT'}">Warm Ivory Cotton Rag</option>
+                                        <option value="BOTANICAL_EUCALYPTUS" th:selected="${poem.paperStyle == 'BOTANICAL_EUCALYPTUS'}">Ithaca Wood &amp; Eucalyptus Frame</option>
+                                        <option value="DEEP_OLIVE_PARCHMENT" th:selected="${poem.paperStyle == 'DEEP_OLIVE_PARCHMENT'}">Deep Olive Nocturne Parchment</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="label-editorial">Dedication (Optional)</label>
+                                    <input type="text" id="poemDedicationInput" class="input-editorial"
+                                           placeholder="For..." th:value="${poem.dedication}"/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="label-editorial">Cover Artwork / Background Image URL</label>
+                                    <input type="text" id="poemCoverInput" class="input-editorial"
+                                           placeholder="/images/editorial/archway-botanical.jpg"
+                                           th:value="${poem.coverArtwork}"/>
+                                </div>
+
+                                <div class="mb-0">
+                                    <label class="label-editorial">Poet's Marginalia / Author Note</label>
+                                    <textarea id="poemAuthorNoteInput" rows="2" class="input-editorial"
+                                              placeholder="Notes on meter, inspiration, or revision..."
+                                              th:text="${poem.authorNote}"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Assign to Collections -->
+                        <div class="olive-panel-card">
+                            <div class="olive-panel-header">
+                                <span>Include in Collections</span>
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <div class="olive-panel-body" style="max-height: 210px; overflow-y: auto;">
+                                <div class="form-check mb-2" th:each="col : ${collections}">
+                                    <input class="form-check-input collection-checkbox" type="checkbox"
+                                           th:id="'colCheck_' + ${col.id}"
+                                           th:value="${col.id}"
+                                           th:checked="${poem.collectionIds.contains(col.id) or (preselectedCollectionId != null and preselectedCollectionId == col.id)}"/>
+                                    <label class="form-check-label d-flex justify-content-between w-100"
+                                           th:for="'colCheck_' + ${col.id}" style="font-size: 13.5px;">
+                                        <span th:text="${col.name}">Love &amp; Romance</span>
+                                        <span style="font-size: 11px; color: var(--text-secondary);"
+                                              th:text="${col.poemCount + ' poems'}">2</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export & Delete Actions (When Poem Exists) -->
+                        <div class="olive-panel-card" th:if="${poem.id != null}">
+                            <div class="olive-panel-header">
+                                <span>Export &amp; Archive Actions</span>
+                                <i class="fa-solid fa-file-export"></i>
+                            </div>
+                            <div class="olive-panel-body">
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <a th:href="@{'/api/poems/' + ${poem.id} + '/export/pdf'}"
+                                       class="btn-editorial btn-editorial-outline flex-grow-1" style="padding: 8px 10px;">
+                                        <i class="fa-solid fa-file-pdf"></i> PDF
+                                    </a>
+                                    <a th:href="@{'/api/poems/' + ${poem.id} + '/export/docx'}"
+                                       class="btn-editorial btn-editorial-outline flex-grow-1" style="padding: 8px 10px;">
+                                        <i class="fa-solid fa-file-word"></i> DOCX
+                                    </a>
+                                    <a th:href="@{'/api/poems/' + ${poem.id} + '/export/txt'}"
+                                       class="btn-editorial btn-editorial-outline flex-grow-1" style="padding: 8px 10px;">
+                                        <i class="fa-solid fa-file-lines"></i> TXT
+                                    </a>
+                                </div>
+                                <button type="button" class="btn-editorial w-100"
+                                        style="background: rgba(139,58,58,0.12); color: #8B3A3A; border-color: #8B3A3A; padding: 8px;"
+                                        th:data-id="${poem.id}"
+                                        th:data-title="${poem.title}"
+                                        onclick="PoetryVerse.deletePoem(this.getAttribute('data-id'), this.getAttribute('data-title'))">
+                                    <i class="fa-regular fa-trash-can"></i> Delete Manuscript
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+<script th:inline="javascript">
+    let autoSaveTimer = null;
+    const autoSaveEnabled = [[${userSettings != null ? userSettings.autoSaveEnabled : true}]];
+    const autoSaveIntervalMs = ([[${userSettings != null ? userSettings.autoSaveIntervalSec : 15}]]) * 1000;
+    let isDirty = false;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        applyEditorTypography();
+        setEditorAlignment(document.getElementById('poemAlignInput').value || 'LEFT');
+        updateLiveMetrics(false);
+
+        if (autoSaveEnabled) {
+            autoSaveTimer = setInterval(() => {
+                if (isDirty) {
+                    saveManuscript(true);
+                }
+            }, autoSaveIntervalMs);
+        }
+
+        // Exit Zen Mode with Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && document.body.classList.contains('zen-writing-active')) {
+                toggleZenWritingMode();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                saveManuscript(false);
+            }
+        });
+    });
+
+    function applyEditorTypography() {
+        const font = document.getElementById('editorFontSelect').value;
+        const size = document.getElementById('editorSizeSelect').value;
+        const spacing = document.getElementById('editorSpacingSelect').value;
+        const surface = document.getElementById('poemContentInput');
+        const title = document.getElementById('poemTitleInput');
+
+        surface.style.fontFamily = `'${font}', Georgia, serif`;
+        surface.style.fontSize = `${size}px`;
+        surface.style.lineHeight = spacing;
+        title.style.fontFamily = `'${font}', Georgia, serif`;
+        isDirty = true;
+    }
+
+    function setEditorAlignment(align) {
+        document.getElementById('poemAlignInput').value = align;
+        const cssAlign = align.toLowerCase();
+        document.getElementById('poemTitleInput').style.textAlign = cssAlign;
+        document.getElementById('poemSubtitleInput').style.textAlign = cssAlign;
+        document.getElementById('poemContentInput').style.textAlign = cssAlign;
+
+        ['LEFT', 'CENTER', 'RIGHT'].forEach(a => {
+            const btn = document.getElementById('alignBtn' + a);
+            if (btn) {
+                btn.style.backgroundColor = (a === align) ? '#A18B50' : 'transparent';
+            }
+        });
+        isDirty = true;
+    }
+
+    function changePaperAtmosphere() {
+        const style = document.getElementById('poemPaperStyleInput').value;
+        document.getElementById('editorPaperSurface').setAttribute('data-paper', style);
+        isDirty = true;
+    }
+
+    function wrapSelectedVerse(prefix, suffix) {
+        const ta = document.getElementById('poemContentInput');
+        const start = ta.selectionStart;
+        const end = ta.selectionEnd;
+        const text = ta.value;
+        const selected = text.substring(start, end) || 'verse';
+        ta.value = text.substring(0, start) + prefix + selected + suffix + text.substring(end);
+        ta.focus();
+        updateLiveMetrics(true);
+    }
+
+    function insertAtCursor(snippet) {
+        const ta = document.getElementById('poemContentInput');
+        const start = ta.selectionStart;
+        const text = ta.value;
+        ta.value = text.substring(0, start) + snippet + text.substring(ta.selectionEnd);
+        ta.focus();
+        updateLiveMetrics(true);
+    }
+
+    function updateLiveMetrics(markDirty = true) {
+        if (markDirty) isDirty = true;
+        const raw = document.getElementById('poemContentInput').value || '';
+        const trimmed = raw.trim();
+        const chars = trimmed.length;
+        const words = trimmed === '' ? 0 : trimmed.split(/\s+/).length;
+        const lines = trimmed === '' ? 0 : trimmed.split(/\r?\n/).filter(l => l.trim().length > 0).length;
+        const stanzas = trimmed === '' ? 0 : trimmed.split(/(\r?\n\s*){2,}/).filter(s => s.trim().length > 0).length;
+        const readSec = Math.max(5, Math.ceil((words / 110) * 60));
+
+        document.getElementById('liveWordCount').textContent = words;
+        document.getElementById('liveCharCount').textContent = chars;
+        document.getElementById('liveLineCount').textContent = lines;
+        document.getElementById('liveStanzaCount').textContent = stanzas;
+        document.getElementById('liveReadTime').textContent = readSec >= 60 ? `${Math.ceil(readSec / 60)}m` : `${readSec}s`;
+    }
+
+    function toggleZenWritingMode() {
+        document.body.classList.toggle('zen-writing-active');
+        const active = document.body.classList.contains('zen-writing-active');
+        document.getElementById('zenModeLabel').textContent = active ? 'Exit Zen (Esc)' : 'Zen Mode';
+    }
+
+    function openLivePreviewModal() {
+        const modalEl = document.getElementById('manuscriptReaderModal');
+        document.getElementById('readerPoemTitle').textContent =
+            document.getElementById('poemTitleInput').value || 'Untitled Verse';
+        const sub = document.getElementById('poemSubtitleInput').value || '';
+        const subEl = document.getElementById('readerPoemSubtitle');
+        subEl.textContent = sub;
+        subEl.style.display = sub ? 'block' : 'none';
+
+        const verseEl = document.getElementById('readerPoemContent');
+        verseEl.textContent = document.getElementById('poemContentInput').value || '';
+        const align = (document.getElementById('poemAlignInput').value || 'LEFT').toLowerCase();
+        verseEl.style.textAlign = align;
+        document.getElementById('readerPoemTitle').style.textAlign = align;
+        subEl.style.textAlign = align;
+
+        document.getElementById('readerPoemGenre').textContent = document.getElementById('poemGenreInput').value;
+        document.getElementById('readerPoemMood').textContent = document.getElementById('poemMoodInput').value;
+        document.getElementById('readerPoemStats').textContent =
+            `${document.getElementById('liveWordCount').textContent} words • ${document.getElementById('liveLineCount').textContent} lines`;
+
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        bsModal.show();
+    }
+
+    async function saveManuscript(isAutoSave = false) {
+        const title = document.getElementById('poemTitleInput').value.trim();
+        const content = document.getElementById('poemContentInput').value.trim();
+
+        if (!title && !content) {
+            if (!isAutoSave) PoetryVerse.showToast('Please enter a title or verse before saving.', 'error');
+            return;
+        }
+
+        const collectionIds = Array.from(document.querySelectorAll('.collection-checkbox:checked'))
+            .map(cb => parseInt(cb.value, 10));
+
+        const payload = {
+            id: document.getElementById('poemIdInput').value || null,
+            title: title || 'Untitled Manuscript',
+            subtitle: document.getElementById('poemSubtitleInput').value,
+            content: content || '...',
+            genre: document.getElementById('poemGenreInput').value,
+            mood: document.getElementById('poemMoodInput').value,
+            status: document.getElementById('poemStatusInput').value,
+            fontFamily: document.getElementById('editorFontSelect').value,
+            fontSize: parseInt(document.getElementById('editorSizeSelect').value, 10),
+            lineSpacing: parseFloat(document.getElementById('editorSpacingSelect').value),
+            textAlign: document.getElementById('poemAlignInput').value,
+            paperStyle: document.getElementById('poemPaperStyleInput').value,
+            dedication: document.getElementById('poemDedicationInput').value,
+            coverArtwork: document.getElementById('poemCoverInput').value,
+            authorNote: document.getElementById('poemAuthorNoteInput').value,
+            templateUsed: document.getElementById('poemTemplateInput').value,
+            tagsCsv: document.getElementById('poemTagsInput').value,
+            favorite: document.getElementById('poemFavoriteCheck').checked,
+            collectionIds: collectionIds
+        };
+
+        try {
+            const res = await fetch('/api/poems/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success && data.poem) {
+                isDirty = false;
+                document.getElementById('poemIdInput').value = data.poem.id;
+                const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                document.getElementById('autoSaveStatusBadge').innerHTML =
+                    `<i class="fa-solid fa-check me-1"></i> ${isAutoSave ? 'Auto-saved' : 'Saved'} at ${nowStr}`;
+                if (!isAutoSave) {
+                    PoetryVerse.showToast(data.message);
+                }
+                if (window.location.pathname === '/editor') {
+                    window.history.replaceState({}, '', `/editor/${data.poem.id}`);
+                }
+            } else if (!isAutoSave) {
+                PoetryVerse.showToast(data.message || 'Could not save manuscript.', 'error');
+            }
+        } catch (err) {
+            if (!isAutoSave) PoetryVerse.showToast('Network error while saving manuscript.', 'error');
+        }
+    }
+</script>
+</body>
+</html>

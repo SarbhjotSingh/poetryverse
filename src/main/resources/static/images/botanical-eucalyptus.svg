@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" fill="none">
+  <g opacity="0.85">
+    <!-- Main curving eucalyptus stem -->
+    <path d="M295 25 C230 60, 175 115, 110 215" stroke="#5A6B4C" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M250 15 C205 70, 185 130, 170 225" stroke="#6E7E5F" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M305 90 C250 120, 215 165, 195 250" stroke="#4D5D3F" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Watercolor-style eucalyptus & olive leaves -->
+    <ellipse cx="255" cy="48" rx="22" ry="9" transform="rotate(-35 255 48)" fill="#6C805A" opacity="0.75"/>
+    <ellipse cx="222" cy="78" rx="25" ry="10" transform="rotate(-42 222 78)" fill="#859972" opacity="0.7"/>
+    <ellipse cx="192" cy="112" rx="26" ry="10" transform="rotate(-38 192 112)" fill="#586B48" opacity="0.8"/>
+    <ellipse cx="162" cy="148" rx="24" ry="9" transform="rotate(-48 162 148)" fill="#7A8F67" opacity="0.75"/>
+    <ellipse cx="136" cy="182" rx="20" ry="8" transform="rotate(-52 136 182)" fill="#93A681" opacity="0.65"/>
+    <!-- Counter-leaves -->
+    <ellipse cx="272" cy="76" rx="21" ry="8" transform="rotate(15 272 76)" fill="#859972" opacity="0.75"/>
+    <ellipse cx="242" cy="112" rx="24" ry="9" transform="rotate(10 242 112)" fill="#5E724E" opacity="0.78"/>
+    <ellipse cx="212" cy="150" rx="22" ry="9" transform="rotate(8 212 150)" fill="#7A8F67" opacity="0.7"/>
+    <ellipse cx="268" cy="138" rx="23" ry="8" transform="rotate(-25 268 138)" fill="#6C805A" opacity="0.7"/>
+    <ellipse cx="235" cy="182" rx="21" ry="8" transform="rotate(-28 235 182)" fill="#8EA17B" opacity="0.65"/>
+    <!-- Delicate golden berries / buds -->
+    <circle cx="198" cy="64" r="3.5" fill="#A18B50"/>
+    <circle cx="188" cy="72" r="2.8" fill="#C4AE72"/>
+    <circle cx="152" cy="116" r="3" fill="#A18B50"/>
+    <circle cx="248" cy="158" r="3.2" fill="#A18B50"/>
+  </g>
+</svg>

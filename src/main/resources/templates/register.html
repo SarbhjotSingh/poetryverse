@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Register Your Poet Sanctuary')}"></head>
+<body style="background-color: #353626; min-height: 100vh; display: flex; flex-direction: column;">
+
+<!-- Top Bar -->
+<nav class="py-3 px-4" style="border-bottom: 1px solid rgba(161,139,80,0.3); background: rgba(37,37,30,0.5);">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a th:href="@{/}" class="d-flex align-items-center gap-2 text-decoration-none">
+            <i class="fa-solid fa-feather-pointed" style="color: #C8B276; font-size: 20px;"></i>
+            <span class="serif-heading text-white" style="font-size: 25px; font-weight: 600;">PoetryVerse</span>
+        </a>
+        <a th:href="@{/login}" class="btn-editorial btn-editorial-ivory-outline" style="padding: 8px 18px;">
+            Already a Poet? Sign In
+        </a>
+    </div>
+</nav>
+
+<main class="flex-grow-1 d-flex align-items-center py-5 position-relative overflow-hidden">
+    <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+         style="position: absolute; top: 10px; right: 10px; width: 260px; opacity: 0.22; pointer-events: none;"/>
+    <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+         style="position: absolute; bottom: 10px; left: 10px; width: 240px; transform: rotate(180deg); opacity: 0.22; pointer-events: none;"/>
+
+    <div class="container">
+        <div class="row justify-content-center align-items-center g-5">
+            <!-- Left Registration Form -->
+            <div class="col-lg-6 col-md-9">
+                <div class="p-4 p-md-5 rounded-1 shadow-lg"
+                     style="background-color: #F5F0E5; color: #25251E; border: 2px solid #A18B50;">
+                    <div class="text-center mb-4">
+                        <span class="script-accent" style="font-size: 26px; color: #A18B50;">Begin Your Anthology</span>
+                        <h1 class="serif-heading mb-1" style="font-size: 34px; font-weight: 600;">Create Your Private Sanctuary</h1>
+                        <p style="font-size: 13.5px; color: #60604D;" class="mb-0">
+                            Each poet receives a dedicated private library, 7 curated collections &amp; journal
+                        </p>
+                    </div>
+
+                    <div th:if="${registerError != null}" class="alert py-2 px-3 mb-3"
+                         style="background-color: rgba(139,58,58,0.12); border: 1px solid #8B3A3A; color: #8B3A3A; font-size: 13px;">
+                        <i class="fa-solid fa-circle-exclamation me-1"></i>
+                        <span th:text="${registerError}"></span>
+                    </div>
+
+                    <form th:action="@{/register}" method="post" id="registerForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="label-editorial">Full Name *</label>
+                                <input type="text" name="fullName" class="input-editorial"
+                                       placeholder="e.g. Julian Hawthorne"
+                                       th:value="${prevFullName != null ? prevFullName : ''}" required/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="label-editorial">Literary Pen Name</label>
+                                <input type="text" name="penName" class="input-editorial"
+                                       placeholder="e.g. J. Hawthorne (Optional)"
+                                       th:value="${prevPenName != null ? prevPenName : ''}"/>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="label-editorial">Username *</label>
+                                <input type="text" name="username" class="input-editorial"
+                                       pattern="[a-zA-Z0-9_.\-]{3,50}"
+                                       title="3 to 50 letters, numbers, or underscores"
+                                       placeholder="e.g. julian_verse"
+                                       th:value="${prevUsername != null ? prevUsername : ''}" required/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="label-editorial">Email Address *</label>
+                                <input type="email" name="email" class="input-editorial"
+                                       placeholder="poet@poetryverse.art"
+                                       th:value="${prevEmail != null ? prevEmail : ''}" required/>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="label-editorial">Passphrase (min. 6 chars) *</label>
+                                <div class="position-relative">
+                                    <input type="password" id="regPwd" name="password" class="input-editorial pe-5"
+                                           minlength="6" placeholder="Create passphrase" required/>
+                                    <button type="button" onclick="toggleRegPwd('regPwd', 'regPwdIcon1')"
+                                            style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #60604D;">
+                                        <i id="regPwdIcon1" class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="label-editorial">Confirm Passphrase *</label>
+                                <div class="position-relative">
+                                    <input type="password" id="regConfirmPwd" name="confirmPassword" class="input-editorial pe-5"
+                                           minlength="6" placeholder="Repeat passphrase" required/>
+                                    <button type="button" onclick="toggleRegPwd('regConfirmPwd', 'regPwdIcon2')"
+                                            style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #60604D;">
+                                        <i id="regPwdIcon2" class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-editorial btn-editorial-olive w-100 py-3 mt-4">
+                            <i class="fa-solid fa-feather-pointed"></i> Establish My Private Library
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4 pt-3" style="border-top: 1px solid rgba(161,139,80,0.28); font-size: 13.5px; color: #60604D;">
+                        Already have a poet account?
+                        <a th:href="@{/login}" style="color: #353626; font-weight: 600; text-decoration: underline;">
+                            Sign In Here
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Editorial Benefits Frame -->
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="frame-ornate-gold p-5" style="background-color: #FAF7F0;">
+                    <div style="font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #A18B50; margin-bottom: 12px;">
+                        Included in Your Sanctuary
+                    </div>
+                    <h3 class="serif-heading mb-3" style="font-size: 30px; color: #25251E;">
+                        An Heirloom Home for Every Stanza
+                    </h3>
+                    <ul class="list-unstyled d-flex flex-column gap-3 mb-0" style="font-size: 14px; color: #353626;">
+                        <li class="d-flex gap-3">
+                            <i class="fa-solid fa-check mt-1" style="color: #A18B50;"></i>
+                            <span><strong>100% Private Poetry Library</strong> — Your drafts and published verses belong solely to your account.</span>
+                        </li>
+                        <li class="d-flex gap-3">
+                            <i class="fa-solid fa-check mt-1" style="color: #A18B50;"></i>
+                            <span><strong>7 Pre-Configured Collections</strong> — Love &amp; Romance, Heartbreak, Nature &amp; Seasons, Philosophy, and more.</span>
+                        </li>
+                        <li class="d-flex gap-3">
+                            <i class="fa-solid fa-check mt-1" style="color: #A18B50;"></i>
+                            <span><strong>Botanical Print &amp; Export</strong> — Download any poem or collection as PDF, DOCX, or TXT anytime.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+<script>
+    function toggleRegPwd(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+</script>
+</body>
+</html>

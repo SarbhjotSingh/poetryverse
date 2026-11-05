@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Sanctuary Settings &amp; Preferences')}"></head>
+<body th:attr="data-theme=${userSettings != null ? userSettings.themeMode : 'EDITORIAL_OLIVE'}">
+
+<div class="workspace-shell">
+    <aside th:replace="~{fragments/layout :: sidebar}"></aside>
+
+    <div class="workspace-main">
+        <header th:replace="~{fragments/layout :: topbar('Sanctuary Settings')}"></header>
+
+        <main class="workspace-content">
+            <div class="mb-4">
+                <div class="script-accent" style="font-size: 24px;">Tailor Your Writing Environment</div>
+                <h1 class="serif-heading mb-0" style="font-size: 36px; font-weight: 600;">
+                    Sanctuary, Typography &amp; Account Settings
+                </h1>
+            </div>
+
+            <div class="row g-4">
+                <!-- Left Column: Theme, Typography & Editor Preferences -->
+                <div class="col-lg-7">
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Theme, Typography &amp; Editor Preferences</span>
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="label-editorial">Sanctuary Visual Theme</label>
+                                    <select id="setThemeMode" class="input-editorial" onchange="previewThemeSelection()">
+                                        <option value="EDITORIAL_OLIVE" th:selected="${userSettings.themeMode == 'EDITORIAL_OLIVE'}">
+                                            Editorial Olive &amp; Warm Ivory (Light)
+                                        </option>
+                                        <option value="MIDNIGHT_BOTANICAL" th:selected="${userSettings.themeMode == 'MIDNIGHT_BOTANICAL'}">
+                                            Midnight Botanical Cloister (Dark)
+                                        </option>
+                                        <option value="ANTIQUE_PARCHMENT" th:selected="${userSettings.themeMode == 'ANTIQUE_PARCHMENT'}">
+                                            Antique Herbarium Parchment (Sepia)
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="label-editorial">Default Paper Texture</label>
+                                    <select id="setPaperTexture" class="input-editorial">
+                                        <option value="WARM_IVORY" th:selected="${userSettings.paperTexture == 'WARM_IVORY'}">Warm Ivory Cotton Rag</option>
+                                        <option value="BOTANICAL_EUCALYPTUS" th:selected="${userSettings.paperTexture == 'BOTANICAL_EUCALYPTUS'}">Ithaca Botanical Frame</option>
+                                        <option value="DEEP_OLIVE_PARCHMENT" th:selected="${userSettings.paperTexture == 'DEEP_OLIVE_PARCHMENT'}">Deep Olive Nocturne</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="label-editorial">Default Editor Font Family</label>
+                                    <select id="setFontFamily" class="input-editorial">
+                                        <option value="Cormorant Garamond" th:selected="${userSettings.editorFontFamily == 'Cormorant Garamond'}">Cormorant Garamond</option>
+                                        <option value="Playfair Display" th:selected="${userSettings.editorFontFamily == 'Playfair Display'}">Playfair Display</option>
+                                        <option value="Inter" th:selected="${userSettings.editorFontFamily == 'Inter'}">Inter Sans</option>
+                                        <option value="La Belle Aurore" th:selected="${userSettings.editorFontFamily == 'La Belle Aurore'}">La Belle Aurore (Script)</option>
+                                        <option value="Georgia" th:selected="${userSettings.editorFontFamily == 'Georgia'}">Classical Georgia</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="label-editorial">Font Size (pt)</label>
+                                    <input type="number" id="setFontSize" min="14" max="32" class="input-editorial"
+                                           th:value="${userSettings.editorFontSize}"/>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="label-editorial">Line Spacing</label>
+                                    <input type="number" id="setLineSpacing" step="0.05" min="1.2" max="2.6" class="input-editorial"
+                                           th:value="${userSettings.editorLineSpacing}"/>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="label-editorial">Default Poetry Genre</label>
+                                    <select id="setDefaultGenre" class="input-editorial">
+                                        <option th:each="g : ${genres}" th:value="${g}" th:text="${g}"
+                                                th:selected="${userSettings.defaultGenre == g}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="label-editorial">Default Verse Alignment</label>
+                                    <select id="setDefaultAlignment" class="input-editorial">
+                                        <option value="LEFT" th:selected="${userSettings.defaultAlignment == 'LEFT'}">Left Aligned</option>
+                                        <option value="CENTER" th:selected="${userSettings.defaultAlignment == 'CENTER'}">Centered Stanzas</option>
+                                        <option value="RIGHT" th:selected="${userSettings.defaultAlignment == 'RIGHT'}">Right Aligned (Ithaca Style)</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="label-editorial">Daily Word Target</label>
+                                    <input type="number" id="setDailyGoal" min="50" max="5000" step="25" class="input-editorial"
+                                           th:value="${userSettings.dailyWordGoal}"/>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="label-editorial">Auto-Save Interval (Seconds)</label>
+                                    <input type="number" id="setAutoSaveInterval" min="5" max="120" class="input-editorial"
+                                           th:value="${userSettings.autoSaveIntervalSec}"/>
+                                </div>
+
+                                <div class="col-12 pt-2">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="setAutoSaveEnabled"
+                                               th:checked="${userSettings.autoSaveEnabled}"/>
+                                        <label class="form-check-label" for="setAutoSaveEnabled">
+                                            Enable automatic manuscript saving in the Poetry Editor
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="setShowLiveStats"
+                                               th:checked="${userSettings.showLiveStats}"/>
+                                        <label class="form-check-label" for="setShowLiveStats">
+                                            Display live word, line, and stanza counters while composing
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 d-flex justify-content-end">
+                                <button type="button" onclick="saveSanctuarySettings()" class="btn-editorial btn-editorial-olive">
+                                    <i class="fa-solid fa-floppy-disk"></i> Save Sanctuary Preferences
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Security, Backup & Account Management -->
+                <div class="col-lg-5 d-flex flex-column gap-4">
+                    <!-- Change Password Card -->
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header">
+                            <span>Change Sanctuary Passphrase</span>
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <div class="mb-3">
+                                <label class="label-editorial">Current Passphrase</label>
+                                <input type="password" id="pwdCurrent" class="input-editorial" placeholder="Enter current passphrase"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="label-editorial">New Passphrase (min. 6 chars)</label>
+                                <input type="password" id="pwdNew" class="input-editorial" placeholder="Enter new passphrase"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="label-editorial">Confirm New Passphrase</label>
+                                <input type="password" id="pwdConfirm" class="input-editorial" placeholder="Confirm new passphrase"/>
+                            </div>
+                            <button type="button" onclick="updatePassphrase()" class="btn-editorial btn-editorial-olive w-100">
+                                Update Passphrase
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Backup & Danger Zone -->
+                    <div class="olive-panel-card">
+                        <div class="olive-panel-header" style="background-color: #4A3E36;">
+                            <span>Archive Backup &amp; Account Management</span>
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div class="olive-panel-body">
+                            <p style="font-size: 13px; color: var(--text-secondary);">
+                                Download a complete personal backup of all your poems, collections, and journal entries at any time.
+                            </p>
+                            <a th:href="@{/api/backup/download}" class="btn-editorial btn-editorial-outline w-100 mb-3">
+                                <i class="fa-solid fa-box-archive"></i> Download Complete Personal Backup
+                            </a>
+
+                            <hr style="border-color: rgba(139,58,58,0.25);"/>
+                            <div style="font-size: 12px; color: #8B3A3A; margin-bottom: 8px; font-weight: 600;">
+                                Danger Zone • Permanent Account Deletion
+                            </div>
+                            <button type="button" onclick="confirmDeleteAccount()"
+                                    class="btn-editorial w-100"
+                                    style="background: rgba(139,58,58,0.12); color: #8B3A3A; border-color: #8B3A3A;">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Delete Poet Account &amp; Library
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+<script>
+    function previewThemeSelection() {
+        const mode = document.getElementById('setThemeMode').value;
+        document.body.setAttribute('data-theme', mode);
+    }
+
+    async function saveSanctuarySettings() {
+        const payload = {
+            themeMode: document.getElementById('setThemeMode').value,
+            paperTexture: document.getElementById('setPaperTexture').value,
+            editorFontFamily: document.getElementById('setFontFamily').value,
+            editorFontSize: parseInt(document.getElementById('setFontSize').value, 10) || 20,
+            editorLineSpacing: parseFloat(document.getElementById('setLineSpacing').value) || 1.85,
+            defaultGenre: document.getElementById('setDefaultGenre').value,
+            defaultAlignment: document.getElementById('setDefaultAlignment').value,
+            dailyWordGoal: parseInt(document.getElementById('setDailyGoal').value, 10) || 250,
+            autoSaveIntervalSec: parseInt(document.getElementById('setAutoSaveInterval').value, 10) || 15,
+            autoSaveEnabled: document.getElementById('setAutoSaveEnabled').checked,
+            showLiveStats: document.getElementById('setShowLiveStats').checked,
+            ambientBotanicals: true
+        };
+
+        const res = await fetch('/api/settings/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+            PoetryVerse.showToast(data.message);
+        } else {
+            PoetryVerse.showToast(data.message || 'Error saving settings.', 'error');
+        }
+    }
+
+    async function updatePassphrase() {
+        const payload = {
+            currentPassword: document.getElementById('pwdCurrent').value,
+            newPassword: document.getElementById('pwdNew').value,
+            confirmPassword: document.getElementById('pwdConfirm').value
+        };
+        const res = await fetch('/api/settings/password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+            PoetryVerse.showToast(data.message);
+            document.getElementById('pwdCurrent').value = '';
+            document.getElementById('pwdNew').value = '';
+            document.getElementById('pwdConfirm').value = '';
+        } else {
+            PoetryVerse.showToast(data.message || 'Could not update passphrase.', 'error');
+        }
+    }
+
+    async function confirmDeleteAccount() {
+        if (!confirm('CRITICAL WARNING: Are you sure you want to permanently delete your PoetryVerse account and all poems, collections, and journal entries? This action cannot be undone.')) {
+            return;
+        }
+        const res = await fetch('/api/account/delete', { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success && data.redirectUrl) {
+            window.location.href = data.redirectUrl;
+        } else {
+            PoetryVerse.showToast(data.message || 'Failed to delete account.', 'error');
+        }
+    }
+</script>
+</body>
+</html>

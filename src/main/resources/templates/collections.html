@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Collections &amp; Anthologies')}"></head>
+<body th:attr="data-theme=${userSettings != null ? userSettings.themeMode : 'EDITORIAL_OLIVE'}">
+
+<div class="workspace-shell">
+    <aside th:replace="~{fragments/layout :: sidebar}"></aside>
+
+    <div class="workspace-main">
+        <header th:replace="~{fragments/layout :: topbar('Collections &amp; Anthologies')}"></header>
+
+        <main class="workspace-content">
+            <!-- Header & Create Collection Button -->
+            <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+                <div>
+                    <div class="script-accent" style="font-size: 24px;">Curated Literary Volumes</div>
+                    <h1 class="serif-heading mb-0" style="font-size: 36px; font-weight: 600;">
+                        Poetry Collections &amp; Categories
+                    </h1>
+                </div>
+                <button type="button" class="btn-editorial btn-editorial-olive" onclick="openCollectionModal(null)">
+                    <i class="fa-solid fa-plus"></i> Create New Collection
+                </button>
+            </div>
+
+            <div class="row g-4">
+                <!-- Left Column: Collection Cards Shelf -->
+                <div class="col-lg-4">
+                    <div class="d-flex flex-column gap-3">
+                        <div th:each="col : ${collections}"
+                             class="p-3 rounded-2 position-relative transition-all"
+                             th:style="'background-color: var(--bg-paper); border: 1px solid ' + (${activeCollection != null and activeCollection.id == col.id} ? '#A18B50' : 'rgba(96,96,77,0.22)') + '; border-left: 6px solid ' + ${col.accentColor} + '; box-shadow: var(--shadow-editorial);'">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <a th:href="@{'/collections/' + ${col.id}}" class="text-decoration-none flex-grow-1">
+                                    <h4 class="serif-heading mb-0" style="font-size: 23px; font-weight: 600;"
+                                        th:text="${col.name}">Love &amp; Romance</h4>
+                                    <div th:if="${col.subtitle != null}" class="serif-heading fst-italic"
+                                         style="font-size: 14.5px; color: var(--text-secondary);"
+                                         th:text="${col.subtitle}">Subtitle</div>
+                                </a>
+                                <span class="badge-editorial badge-gold" th:text="${col.poemCount + ' poems'}">2 poems</span>
+                            </div>
+
+                            <p th:if="${col.description != null}" class="mt-2 mb-2"
+                               style="font-size: 13px; color: var(--text-secondary); line-height: 1.55;"
+                               th:text="${col.description}"></p>
+
+                            <div class="d-flex justify-content-between align-items-center pt-2 mt-2"
+                                 style="border-top: 1px solid rgba(161,139,80,0.2); font-size: 12px;">
+                                <span style="color: var(--text-secondary);" th:text="${col.totalWords + ' total words'}">340 words</span>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{'/collections/' + ${col.id}}" style="color: var(--deep-olive); font-weight: 600;">
+                                        Open Folio &rarr;
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Active Collection Detail & Poems Inside -->
+                <div class="col-lg-8">
+                    <div th:if="${activeCollection != null}">
+                        <!-- Collection Banner Header -->
+                        <div class="p-4 p-md-5 mb-4 rounded-2 position-relative overflow-hidden shadow-sm"
+                             th:style="'background: linear-gradient(135deg, ' + ${activeCollection.accentColor} + ' 0%, #25251E 100%); color: #F5F0E5; border: 2px solid #A18B50;'">
+                            <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+                                 style="position: absolute; top: 0; right: 0; width: 200px; opacity: 0.25; pointer-events: none;"/>
+
+                            <div class="position-relative" style="z-index: 2;">
+                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                    <div>
+                                        <span class="badge-editorial" style="background: rgba(245,240,229,0.15); color: #C8B276; border-color: #A18B50;">
+                                            Collection Anthology • <span th:text="${activeCollection.poemCount + ' Poems'}">3 Poems</span>
+                                            • <span th:text="${activeCollection.totalWords + ' Words'}">410 Words</span>
+                                        </span>
+                                        <h2 class="serif-heading text-white mt-2 mb-1" style="font-size: 38px; font-weight: 600;"
+                                            th:text="${activeCollection.name}">Love &amp; Romance</h2>
+                                        <div class="serif-heading fst-italic" style="font-size: 19px; color: #D9D0B9;"
+                                             th:text="${activeCollection.subtitle}">Letters Sealed in Amber Wax</div>
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="btn-editorial btn-editorial-ivory-outline" style="padding: 8px 14px;"
+                                                onclick="openEditActiveCollection()">
+                                            <i class="fa-solid fa-pen"></i> Edit Details
+                                        </button>
+                                        <a th:href="@{'/api/collections/' + ${activeCollection.id} + '/export/pdf'}"
+                                           class="btn-editorial btn-editorial-sage" style="padding: 8px 16px;">
+                                            <i class="fa-solid fa-file-pdf"></i> Export Anthology PDF
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <blockquote th:if="${activeCollection.epigraph != null and !activeCollection.epigraph.isEmpty()}"
+                                            class="serif-heading fst-italic mt-3 mb-2 ps-3"
+                                            style="border-left: 2px solid #C8B276; font-size: 18px; color: #FAF7F0;"
+                                            th:text="'“' + ${activeCollection.epigraph} + '”'">
+                                </blockquote>
+
+                                <p th:if="${activeCollection.description != null}" class="mb-3"
+                                   style="font-size: 14px; color: #D9D0B9; max-width: 650px;"
+                                   th:text="${activeCollection.description}"></p>
+
+                                <div class="d-flex flex-wrap gap-2 pt-2">
+                                    <a th:href="@{'/editor?collectionId=' + ${activeCollection.id}}"
+                                       class="btn-editorial btn-editorial-gold" style="padding: 8px 16px;">
+                                        <i class="fa-solid fa-feather-pointed"></i> Write Poem in Collection
+                                    </a>
+                                    <button type="button" class="btn-editorial btn-editorial-ivory-outline" style="padding: 8px 14px;"
+                                            data-bs-toggle="modal" data-bs-target="#assignPoemsModal">
+                                        <i class="fa-solid fa-list-check"></i> Manage Poems in Collection
+                                    </button>
+                                    <button type="button" class="btn-editorial"
+                                            style="background: rgba(139,58,58,0.35); color: #F5F0E5; border-color: #C95B5B; padding: 8px 14px;"
+                                            th:onclick="'deleteCollectionById(' + ${activeCollection.id} + ')'">
+                                        <i class="fa-regular fa-trash-can"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Poems Inside Active Collection -->
+                        <div th:if="${#lists.isEmpty(collectionPoems)}" class="manuscript-card text-center py-5">
+                            <div class="script-accent" style="font-size: 28px;">This folio is awaiting its first poem</div>
+                            <p class="text-muted mb-3">Assign existing poems from your library or compose a new verse directly inside this collection.</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button type="button" class="btn-editorial btn-editorial-outline"
+                                        data-bs-toggle="modal" data-bs-target="#assignPoemsModal">
+                                    Assign Existing Poems
+                                </button>
+                                <a th:href="@{'/editor?collectionId=' + ${activeCollection.id}}" class="btn-editorial btn-editorial-olive">
+                                    Write New Poem
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="row g-3" th:if="${!#lists.isEmpty(collectionPoems)}">
+                            <div class="col-md-6" th:each="poem : ${collectionPoems}">
+                                <div class="manuscript-card">
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge-editorial badge-gold" th:text="${poem.genre}">Genre</span>
+                                            <button type="button" class="btn btn-sm p-0 border-0 text-muted"
+                                                    th:onclick="'removePoemFromActiveCol(' + ${activeCollection.id} + ',' + ${poem.id} + ')'"
+                                                    title="Remove from Collection">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </button>
+                                        </div>
+                                        <h4 class="serif-heading mb-1" style="font-size: 24px; font-weight: 600; cursor: pointer;"
+                                            th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                            th:text="${poem.title}">Title</h4>
+                                        <div class="manuscript-verse-preview" th:text="${poem.excerpt}"></div>
+                                    </div>
+                                    <div class="pt-2 d-flex justify-content-between align-items-center"
+                                         style="border-top: 1px solid rgba(161,139,80,0.22); font-size: 12px; color: var(--text-secondary);">
+                                        <span th:text="${poem.wordCount + ' words • ' + poem.lineCount + ' lines'}"></span>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-sm p-1"
+                                                    th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </button>
+                                            <a th:href="@{'/editor/' + ${poem.id}}" class="btn btn-sm p-1">
+                                                <i class="fa-solid fa-pen-nib" style="color: #A18B50;"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- CREATE / EDIT COLLECTION MODAL -->
+<div class="modal fade" id="collectionFormModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #FAF7F0; border: 2px solid #A18B50;">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <span class="script-accent" style="font-size: 22px;">Curate Anthology</span>
+                    <h4 id="colModalHeading" class="serif-heading mb-0" style="font-size: 26px;">Create New Collection</h4>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="colFormId"/>
+                <div class="mb-3">
+                    <label class="label-editorial">Collection Name *</label>
+                    <input type="text" id="colFormName" class="input-editorial" placeholder="e.g. Nocturnes &amp; Wildflowers" required/>
+                </div>
+                <div class="mb-3">
+                    <label class="label-editorial">Subtitle</label>
+                    <input type="text" id="colFormSubtitle" class="input-editorial" placeholder="e.g. Verses composed after midnight"/>
+                </div>
+                <div class="mb-3">
+                    <label class="label-editorial">Epigraph Quote</label>
+                    <input type="text" id="colFormEpigraph" class="input-editorial" placeholder="An opening quotation for the collection..."/>
+                </div>
+                <div class="mb-3">
+                    <label class="label-editorial">Description</label>
+                    <textarea id="colFormDescription" rows="3" class="input-editorial" placeholder="Describe the theme and mood of this collection..."></textarea>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="label-editorial">Collection Accent Color</label>
+                        <select id="colFormColor" class="input-editorial">
+                            <option value="#353626">Deep Olive (#353626)</option>
+                            <option value="#60604D">Muted Olive (#60604D)</option>
+                            <option value="#A18B50">Antique Gold (#A18B50)</option>
+                            <option value="#25251E">Dark Charcoal (#25251E)</option>
+                            <option value="#4A3E36">Warm Umber (#4A3E36)</option>
+                            <option value="#1F352A">Botanical Emerald (#1F352A)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-editorial">Cover Image URL (Optional)</label>
+                        <input type="text" id="colFormCover" class="input-editorial" placeholder="/images/editorial/archway-botanical.jpg"/>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn-editorial btn-editorial-outline" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" onclick="saveCollectionForm()" class="btn-editorial btn-editorial-olive">Save Collection</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ASSIGN POEMS TO ACTIVE COLLECTION MODAL -->
+<div class="modal fade" id="assignPoemsModal" tabindex="-1" aria-hidden="true" th:if="${activeCollection != null}">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background-color: #FAF7F0; border: 2px solid #A18B50;">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <span class="script-accent" style="font-size: 22px;">Anthology Curation</span>
+                    <h4 class="serif-heading mb-0" style="font-size: 25px;"
+                        th:text="'Assign Poems to ' + ${activeCollection.name}">Assign Poems</h4>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex flex-column gap-2">
+                    <div class="form-check p-2 rounded" style="border: 1px solid rgba(96,96,77,0.2);"
+                         th:each="p : ${allUserPoems}">
+                        <input class="form-check-input assign-poem-cb ms-1 me-2" type="checkbox"
+                               th:id="'assignPoem_' + ${p.id}"
+                               th:value="${p.id}"
+                               th:checked="${p.collectionIds.contains(activeCollection.id)}"/>
+                        <label class="form-check-label" th:for="'assignPoem_' + ${p.id}">
+                            <strong class="serif-heading" style="font-size: 18px;" th:text="${p.title}">Title</strong>
+                            <span class="badge-editorial ms-2" th:text="${p.genre}">Genre</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn-editorial btn-editorial-outline" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" onclick="saveAssignedPoems()" class="btn-editorial btn-editorial-olive">Update Collection Poems</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+<script th:inline="javascript">
+    const activeColData = [[${activeCollection != null ? activeCollection : null}]];
+
+    function openCollectionModal(col) {
+        document.getElementById('colFormId').value = col ? col.id : '';
+        document.getElementById('colFormName').value = col ? (col.name || '') : '';
+        document.getElementById('colFormSubtitle').value = col ? (col.subtitle || '') : '';
+        document.getElementById('colFormEpigraph').value = col ? (col.epigraph || '') : '';
+        document.getElementById('colFormDescription').value = col ? (col.description || '') : '';
+        document.getElementById('colFormColor').value = col ? (col.accentColor || '#353626') : '#353626';
+        document.getElementById('colFormCover').value = col ? (col.coverImage || '') : '';
+        document.getElementById('colModalHeading').textContent = col ? 'Edit Collection Details' : 'Create New Collection';
+
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('collectionFormModal'));
+        modal.show();
+    }
+
+    function openEditActiveCollection() {
+        if (activeColData) openCollectionModal(activeColData);
+    }
+
+    async function saveCollectionForm() {
+        const name = document.getElementById('colFormName').value.trim();
+        if (!name) {
+            PoetryVerse.showToast('Collection name is required.', 'error');
+            return;
+        }
+        const payload = {
+            id: document.getElementById('colFormId').value || null,
+            name: name,
+            subtitle: document.getElementById('colFormSubtitle').value,
+            epigraph: document.getElementById('colFormEpigraph').value,
+            description: document.getElementById('colFormDescription').value,
+            accentColor: document.getElementById('colFormColor').value,
+            coverImage: document.getElementById('colFormCover').value
+        };
+        const res = await fetch('/api/collections/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+            PoetryVerse.showToast(data.message);
+            setTimeout(() => window.location.href = `/collections/${data.collectionId}`, 600);
+        } else {
+            PoetryVerse.showToast(data.message || 'Error saving collection.', 'error');
+        }
+    }
+
+    async function saveAssignedPoems() {
+        if (!activeColData) return;
+        const poemIds = Array.from(document.querySelectorAll('.assign-poem-cb:checked'))
+            .map(cb => parseInt(cb.value, 10));
+        const payload = {
+            id: activeColData.id,
+            name: activeColData.name,
+            subtitle: activeColData.subtitle,
+            epigraph: activeColData.epigraph,
+            description: activeColData.description,
+            accentColor: activeColData.accentColor,
+            coverImage: activeColData.coverImage,
+            poemIds: poemIds
+        };
+        const res = await fetch('/api/collections/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+            PoetryVerse.showToast('Collection poems updated.');
+            setTimeout(() => window.location.reload(), 600);
+        }
+    }
+
+    async function removePoemFromActiveCol(colId, poemId) {
+        const res = await fetch(`/api/collections/${colId}/remove/${poemId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+            PoetryVerse.showToast(data.message);
+            setTimeout(() => window.location.reload(), 550);
+        }
+    }
+
+    async function deleteCollectionById(colId) {
+        if (!confirm('Delete this collection? (Your poems inside it will remain safe in your library.)')) return;
+        const res = await fetch(`/api/collections/${colId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+            PoetryVerse.showToast(data.message);
+            setTimeout(() => window.location.href = '/collections', 600);
+        }
+    }
+</script>
+</body>
+</html>

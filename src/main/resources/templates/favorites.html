@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Favorite Manuscripts')}"></head>
+<body th:attr="data-theme=${userSettings != null ? userSettings.themeMode : 'EDITORIAL_OLIVE'}">
+
+<div class="workspace-shell">
+    <aside th:replace="~{fragments/layout :: sidebar}"></aside>
+
+    <div class="workspace-main">
+        <header th:replace="~{fragments/layout :: topbar('Favorite Manuscripts')}"></header>
+
+        <main class="workspace-content">
+            <!-- Header & Search/Sort Bar -->
+            <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+                <div>
+                    <div class="script-accent" style="font-size: 24px;">Cherished Verses</div>
+                    <h1 class="serif-heading mb-0" style="font-size: 36px; font-weight: 600;">
+                        Favorite Poems Reading Room
+                        <span style="font-size: 18px; color: var(--text-secondary); font-weight: 400;"
+                              th:text="'(' + ${#lists.size(favorites)} + ')'">(3)</span>
+                    </h1>
+                </div>
+
+                <form th:action="@{/favorites}" method="get" class="d-flex flex-wrap gap-2">
+                    <input type="text" name="search" class="input-editorial" style="width: 240px;"
+                           placeholder="Search favorites..." th:value="${selectedSearch}"/>
+                    <select name="sort" class="input-editorial" style="width: 180px;" onchange="this.form.submit()">
+                        <option value="recent_favorited" th:selected="${selectedSort == 'recent_favorited'}">Recently Favorited</option>
+                        <option value="title" th:selected="${selectedSort == 'title'}">Title (A–Z)</option>
+                        <option value="words" th:selected="${selectedSort == 'words'}">Longest Poems</option>
+                        <option value="oldest" th:selected="${selectedSort == 'oldest'}">Oldest Favorited</option>
+                    </select>
+                    <button type="submit" class="btn-editorial btn-editorial-olive" style="padding: 10px 16px;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(favorites)}" class="manuscript-card text-center py-5">
+                <div class="script-accent" style="font-size: 30px;">Your reading room is quiet</div>
+                <p class="text-muted mx-auto mb-3" style="max-width: 440px;">
+                    Click the golden heart icon on any poem in your library or editor to showcase it here in your Favorites Reading Room.
+                </p>
+                <div>
+                    <a th:href="@{/library}" class="btn-editorial btn-editorial-olive">Browse My Library</a>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 1. FEATURED PLUMWOOD MOUNTAIN JOURNAL READING SPREAD (IMAGE 3)
+                 ============================================================ -->
+            <div th:if="${!#lists.isEmpty(favorites)}" class="plumwood-spread mb-5" th:with="topFav=${favorites[0].poem}">
+                <div class="plumwood-nature-strip"
+                     style="background: linear-gradient(180deg, rgba(31,53,42,0.18), rgba(31,53,42,0.55)), url('/images/editorial/archway-botanical.jpg') left center/cover;">
+                </div>
+
+                <div class="d-flex flex-column justify-content-between py-2 px-md-4">
+                    <div class="d-flex justify-content-between align-items-center pb-2 mb-3"
+                         style="border-bottom: 1px solid rgba(96,96,77,0.22);">
+                        <span style="font-family: var(--font-serif); font-size: 15px; font-weight: 600;">
+                            <i class="fa-solid fa-crown me-1" style="color: #A18B50;"></i> Featured Favorite Reading Mode
+                        </span>
+                        <span class="badge-editorial badge-gold" th:text="${topFav.genre}">Nature Poetry</span>
+                    </div>
+
+                    <div>
+                        <div class="plumwood-quote-mark">“</div>
+                        <h3 class="serif-heading mb-2" style="font-size: 30px; font-weight: 600;" th:text="${topFav.title}">Title</h3>
+                        <pre class="serif-heading my-2"
+                             style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 21px; line-height: 1.7; white-space: pre-wrap; background: transparent; border: none; padding: 0; color: var(--text-primary);"
+                             th:text="${topFav.excerpt}"></pre>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="serif-heading fst-italic" style="font-size: 15px; color: var(--text-secondary);"
+                                  th:text="'by ' + ${currentUser.penName}">by C. E. Vance</span>
+                            <span class="plumwood-quote-mark" style="line-height: 0.2;">”</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 mt-3 d-flex flex-wrap justify-content-between align-items-center gap-2"
+                         style="border-top: 1px solid rgba(96,96,77,0.22);">
+                        <button type="button" class="btn-editorial btn-editorial-olive" style="padding: 8px 18px;"
+                                th:onclick="'PoetryVerse.openManuscriptModal(' + ${topFav.id} + ')'">
+                            <i class="fa-solid fa-book-open-reader"></i> Open Full Framed Edition
+                        </button>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{'/api/poems/' + ${topFav.id} + '/export/pdf'}" class="btn-editorial btn-editorial-outline" style="padding: 8px 14px;">
+                                <i class="fa-solid fa-file-pdf"></i> PDF
+                            </a>
+                            <button type="button" class="btn-editorial btn-editorial-outline" style="padding: 8px 14px;"
+                                    th:data-title="${topFav.title}"
+                                    th:data-verse="${topFav.content}"
+                                    onclick="sharePoemToClipboard(this.getAttribute('data-title'), this.getAttribute('data-verse'))">
+                                <i class="fa-solid fa-share-nodes"></i> Share Verse
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="plumwood-nature-strip"
+                     style="background: linear-gradient(180deg, rgba(53,54,38,0.2), rgba(37,37,30,0.55)), url('/images/editorial/plumwood-journal.png') right center/cover;">
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 2. ALL FAVORITE POEMS GRID
+                 ============================================================ -->
+            <div class="row g-4" th:if="${!#lists.isEmpty(favorites)}">
+                <div class="col-md-6 col-xl-4" th:each="fav : ${favorites}" th:with="poem=${fav.poem}">
+                    <div class="manuscript-card">
+                        <img th:src="@{/images/botanical-eucalyptus.svg}" alt="" class="manuscript-corner-leaf"/>
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge-editorial badge-gold" th:text="${poem.genre}">Genre</span>
+                                <button type="button" class="btn btn-sm p-0 border-0"
+                                        th:onclick="'removeFavoriteAndReload(' + ${poem.id} + ')'"
+                                        title="Remove from Favorites">
+                                    <i class="fa-solid fa-heart" style="color: #A18B50; font-size: 16px;"></i>
+                                </button>
+                            </div>
+
+                            <h3 class="serif-heading mb-1" style="font-size: 26px; font-weight: 600; cursor: pointer;"
+                                th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                th:text="${poem.title}">Title</h3>
+                            <div th:if="${poem.subtitle != null}" class="serif-heading fst-italic mb-2"
+                                 style="font-size: 15px; color: var(--text-secondary);"
+                                 th:text="${poem.subtitle}"></div>
+
+                            <div class="manuscript-verse-preview"
+                                 style="cursor: pointer;"
+                                 th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                 th:text="${poem.excerpt}"></div>
+                        </div>
+
+                        <div class="pt-3" style="border-top: 1px solid rgba(161,139,80,0.25);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span style="font-size: 12px; color: var(--text-secondary);"
+                                      th:text="${poem.wordCount + ' words • ' + poem.lineCount + ' lines'}"></span>
+                                <div class="d-flex gap-1">
+                                    <button type="button" class="btn btn-sm p-1"
+                                            th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                            title="Open Reading Mode">
+                                        <i class="fa-solid fa-book-open-reader"></i>
+                                    </button>
+                                    <a th:href="@{'/editor/' + ${poem.id}}" class="btn btn-sm p-1" title="Edit">
+                                        <i class="fa-solid fa-pen-nib" style="color: #A18B50;"></i>
+                                    </a>
+                                    <a th:href="@{'/api/poems/' + ${poem.id} + '/export/pdf'}" class="btn btn-sm p-1" title="Export PDF">
+                                        <i class="fa-solid fa-file-pdf"></i>
+                                    </a>
+                                    <a th:href="@{'/api/poems/' + ${poem.id} + '/export/docx'}" class="btn btn-sm p-1" title="Export DOCX">
+                                        <i class="fa-solid fa-file-word"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm p-1"
+                                            th:data-title="${poem.title}"
+                                            th:data-verse="${poem.content}"
+                                            onclick="sharePoemToClipboard(this.getAttribute('data-title'), this.getAttribute('data-verse'))"
+                                            title="Copy &amp; Share">
+                                        <i class="fa-solid fa-share-nodes"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+<script>
+    async function removeFavoriteAndReload(poemId) {
+        await PoetryVerse.toggleFavorite(poemId, null);
+        setTimeout(() => window.location.reload(), 550);
+    }
+
+    function sharePoemToClipboard(title, verse) {
+        const text = `${title}\n— via PoetryVerse —\n\n${verse}`;
+        navigator.clipboard.writeText(text).then(() => {
+            PoetryVerse.showToast(`Copied "${title}" to your clipboard for sharing!`);
+        });
+    }
+</script>
+</body>
+</html>

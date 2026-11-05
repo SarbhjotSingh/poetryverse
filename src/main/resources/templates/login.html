@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Sign In to Your Sanctuary')}"></head>
+<body style="background-color: #353626; min-height: 100vh; display: flex; flex-direction: column;">
+
+<!-- Top Bar -->
+<nav class="py-3 px-4" style="border-bottom: 1px solid rgba(161,139,80,0.3); background: rgba(37,37,30,0.5);">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a th:href="@{/}" class="d-flex align-items-center gap-2 text-decoration-none">
+            <i class="fa-solid fa-feather-pointed" style="color: #C8B276; font-size: 20px;"></i>
+            <span class="serif-heading text-white" style="font-size: 25px; font-weight: 600;">PoetryVerse</span>
+        </a>
+        <a th:href="@{/register}" class="btn-editorial btn-editorial-sage" style="padding: 8px 18px;">
+            Create Poet Account
+        </a>
+    </div>
+</nav>
+
+<!-- Main Auth Stage -->
+<main class="flex-grow-1 d-flex align-items-center py-5 position-relative overflow-hidden">
+    <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+         style="position: absolute; top: 10px; right: 10px; width: 260px; opacity: 0.22; pointer-events: none;"/>
+    <img th:src="@{/images/botanical-eucalyptus.svg}" alt=""
+         style="position: absolute; bottom: 10px; left: 10px; width: 240px; transform: rotate(180deg); opacity: 0.22; pointer-events: none;"/>
+
+    <div class="container">
+        <div class="row justify-content-center align-items-center g-5">
+            <!-- Left Editorial Frame -->
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <div class="frame-ornate-gold mx-auto p-5" style="max-width: 390px; background-color: #FAF7F0;">
+                    <div style="font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #A18B50; margin-bottom: 14px;">
+                        The Poet's Cloister
+                    </div>
+                    <h2 class="serif-heading" style="font-size: 34px; color: #25251E;">
+                        Where Every Word Finds Its Forever
+                    </h2>
+                    <div class="script-accent my-2" style="font-size: 26px; color: #60604D;">
+                        welcome back to your study
+                    </div>
+                    <hr style="border-color: rgba(161,139,80,0.4); width: 70px; margin: 18px auto;"/>
+                    <p class="serif-heading fst-italic mb-0" style="font-size: 18px; color: #353626; line-height: 1.65;">
+                        “When you set out on your journey to Ithaca, pray that the road is long, full of adventure, full of knowledge.”
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Login Card -->
+            <div class="col-lg-5 col-md-8">
+                <div class="p-4 p-md-5 rounded-1 shadow-lg position-relative"
+                     style="background-color: #F5F0E5; color: #25251E; border: 2px solid #A18B50;">
+                    <div class="text-center mb-4">
+                        <span class="script-accent" style="font-size: 25px; color: #A18B50;">Enter Your Sanctuary</span>
+                        <h1 class="serif-heading mb-1" style="font-size: 34px; font-weight: 600;">Poet Sign In</h1>
+                        <p style="font-size: 13.5px; color: #60604D;" class="mb-0">
+                            Unlock your private poetry library, collections &amp; journal
+                        </p>
+                    </div>
+
+                    <!-- Alerts -->
+                    <div th:if="${param.error}" class="alert py-2 px-3 mb-3"
+                         style="background-color: rgba(139,58,58,0.12); border: 1px solid #8B3A3A; color: #8B3A3A; font-size: 13px;">
+                        <i class="fa-solid fa-circle-exclamation me-1"></i>
+                        Invalid username/email or passphrase. Please try again.
+                    </div>
+                    <div th:if="${param.logout}" class="alert py-2 px-3 mb-3"
+                         style="background-color: rgba(53,54,38,0.1); border: 1px solid #60604D; color: #353626; font-size: 13px;">
+                        <i class="fa-solid fa-feather me-1"></i>
+                        You have signed out of your sanctuary safely.
+                    </div>
+                    <div th:if="${param.deleted}" class="alert py-2 px-3 mb-3"
+                         style="background-color: rgba(139,58,58,0.1); border: 1px solid #8B3A3A; color: #8B3A3A; font-size: 13px;">
+                        Your poet account and private library have been permanently deleted.
+                    </div>
+                    <div th:if="${resetSuccess != null}" class="alert py-2 px-3 mb-3"
+                         style="background-color: rgba(53,54,38,0.12); border: 1px solid #A18B50; color: #353626; font-size: 13px;"
+                         th:text="${resetSuccess}"></div>
+                    <div th:if="${resetError != null}" class="alert py-2 px-3 mb-3"
+                         style="background-color: rgba(139,58,58,0.12); border: 1px solid #8B3A3A; color: #8B3A3A; font-size: 13px;"
+                         th:text="${resetError}"></div>
+
+                    <form th:action="@{/login}" method="post" id="loginForm">
+                        <div class="mb-3">
+                            <label class="label-editorial" for="usernameInput">Username or Email Address</label>
+                            <input type="text" id="usernameInput" name="username" class="input-editorial"
+                                   placeholder="e.g. clara_vance or clara@poetryverse.art" required autofocus/>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="label-editorial" for="passwordInput">Passphrase</label>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal"
+                                   style="font-size: 12px; color: #A18B50; font-weight: 500;">
+                                    Forgot Passphrase?
+                                </a>
+                            </div>
+                            <div class="position-relative">
+                                <input type="password" id="passwordInput" name="password" class="input-editorial pe-5"
+                                       placeholder="Enter your secret passphrase" required/>
+                                <button type="button" onclick="togglePwdVisibility('passwordInput', 'pwdToggleIcon')"
+                                        style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #60604D; cursor: pointer;"
+                                        title="Toggle Password Visibility">
+                                    <i id="pwdToggleIcon" class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="remember-me" id="rememberMeCheck" checked/>
+                                <label class="form-check-label" for="rememberMeCheck" style="font-size: 13px; color: #60604D;">
+                                    Remember me in this study
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-editorial btn-editorial-olive w-100 py-3">
+                            <i class="fa-solid fa-key"></i> Unlock Sanctuary
+                        </button>
+                    </form>
+
+                    <!-- Quick Demo Poet Fill -->
+                    <div class="mt-4 pt-3 text-center" style="border-top: 1px solid rgba(161,139,80,0.28);">
+                        <div style="font-size: 11.5px; color: #60604D; margin-bottom: 8px;">
+                            Want to explore our pre-populated flagship poet sanctuary?
+                        </div>
+                        <button type="button" onclick="fillDemoPoet()" class="btn-editorial btn-editorial-outline w-100" style="padding: 8px 14px;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: #A18B50;"></i>
+                            Fill Demo Poet (clara_vance)
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-3" style="font-size: 13.5px; color: #60604D;">
+                        New to PoetryVerse?
+                        <a th:href="@{/register}" style="color: #353626; font-weight: 600; text-decoration: underline;">
+                            Begin Your Private Library
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FORGOT PASSWORD MODAL (SECTION 4) -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #FAF7F0; border: 2px solid #A18B50;">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <span class="script-accent" style="font-size: 22px;">Account Recovery</span>
+                    <h4 class="serif-heading mb-0" style="font-size: 26px;">Restore Your Passphrase</h4>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/forgot-password}" method="post">
+                <div class="modal-body">
+                    <p style="font-size: 13.5px; color: #60604D;">
+                        Enter your registered username or email address along with your new desired passphrase.
+                    </p>
+                    <div class="mb-3">
+                        <label class="label-editorial">Username or Email</label>
+                        <input type="text" name="identifier" class="input-editorial" placeholder="clara_vance or clara@poetryverse.art" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="label-editorial">New Passphrase (min. 6 characters)</label>
+                        <input type="password" name="newPassword" class="input-editorial" minlength="6" required/>
+                    </div>
+                    <div class="mb-2">
+                        <label class="label-editorial">Confirm New Passphrase</label>
+                        <input type="password" name="confirmNewPassword" class="input-editorial" minlength="6" required/>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn-editorial btn-editorial-outline" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn-editorial btn-editorial-olive">Restore Passphrase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+<script>
+    function togglePwdVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    function fillDemoPoet() {
+        document.getElementById('usernameInput').value = 'clara_vance';
+        document.getElementById('passwordInput').value = 'PoetVerse2026!';
+        PoetryVerse.showToast('Demo poet credentials populated — click Unlock Sanctuary!');
+    }
+</script>
+</body>
+</html>

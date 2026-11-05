@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('My Poetry Library')}"></head>
+<body th:attr="data-theme=${userSettings != null ? userSettings.themeMode : 'EDITORIAL_OLIVE'}">
+
+<div class="workspace-shell">
+    <aside th:replace="~{fragments/layout :: sidebar}"></aside>
+
+    <div class="workspace-main">
+        <header th:replace="~{fragments/layout :: topbar('My Poetry Library')}"></header>
+
+        <main class="workspace-content">
+            <!-- ============================================================
+                 1. LIBRARY HEADER & QUICK ACTIONS
+                 ============================================================ -->
+            <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+                <div>
+                    <div class="script-accent" style="font-size: 24px;">Private Manuscript Vault</div>
+                    <h1 class="serif-heading mb-0" style="font-size: 36px; font-weight: 600;">
+                        <span th:text="${selectedArchived ? 'Archived Manuscripts' : 'Collected Poems &amp; Drafts'}">Collected Poems</span>
+                        <span style="font-size: 18px; color: var(--text-secondary); font-weight: 400;"
+                              th:text="'(' + ${#lists.size(poems)} + ')'">(6)</span>
+                    </h1>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn-editorial btn-editorial-outline"
+                            data-bs-toggle="modal" data-bs-target="#importTxtModal">
+                        <i class="fa-solid fa-file-import"></i> Import TXT
+                    </button>
+                    <a th:href="@{/api/backup/download}" class="btn-editorial btn-editorial-outline">
+                        <i class="fa-solid fa-box-archive"></i> Full Backup
+                    </a>
+                    <a th:href="@{/editor}" class="btn-editorial btn-editorial-olive">
+                        <i class="fa-solid fa-feather-pointed"></i> Compose New Poem
+                    </a>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 2. SEARCH, FILTER & SORT BAR (SECTION 7)
+                 ============================================================ -->
+            <form th:action="@{/library}" method="get" id="libraryFilterForm"
+                  class="p-3 mb-4 rounded-2"
+                  style="background-color: var(--card-beige); border: 1px solid rgba(96,96,77,0.22);">
+                <input type="hidden" name="view" id="viewModeInput" th:value="${selectedView}"/>
+                <input type="hidden" name="archived" id="archivedInput" th:value="${selectedArchived}"/>
+
+                <div class="row g-2 align-items-end">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="label-editorial">Search Title, Verse or Tag</label>
+                        <input type="text" name="search" class="input-editorial"
+                               placeholder="e.g. Ithaca, pine, love..."
+                               th:value="${selectedSearch}"/>
+                    </div>
+
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <label class="label-editorial">Genre</label>
+                        <select name="genre" class="input-editorial" onchange="this.form.submit()">
+                            <option value="ALL">All Genres</option>
+                            <option th:each="g : ${genres}" th:value="${g}" th:text="${g}"
+                                    th:selected="${selectedGenre == g}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <label class="label-editorial">Mood</label>
+                        <select name="mood" class="input-editorial" onchange="this.form.submit()">
+                            <option value="ALL">All Moods</option>
+                            <option th:each="m : ${moods}" th:value="${m}" th:text="${m}"
+                                    th:selected="${selectedMood == m}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 col-md-4 col-6">
+                        <label class="label-editorial">Tag</label>
+                        <select name="tag" class="input-editorial" onchange="this.form.submit()">
+                            <option value="ALL">All Tags</option>
+                            <option th:each="t : ${tags}" th:value="${t.name}" th:text="'#' + ${t.name}"
+                                    th:selected="${selectedTag == t.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 col-md-4 col-6">
+                        <label class="label-editorial">Sort By</label>
+                        <select name="sort" class="input-editorial" onchange="this.form.submit()">
+                            <option value="recently_edited" th:selected="${selectedSort == 'recently_edited'}">Recently Edited</option>
+                            <option value="newest" th:selected="${selectedSort == 'newest'}">Newest Created</option>
+                            <option value="oldest" th:selected="${selectedSort == 'oldest'}">Oldest Created</option>
+                            <option value="title" th:selected="${selectedSort == 'title'}">Title (A–Z)</option>
+                            <option value="words" th:selected="${selectedSort == 'words'}">Word Count</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-1 col-md-4 d-flex gap-1 justify-content-end">
+                        <button type="submit" class="btn-editorial btn-editorial-olive w-100" style="padding: 11px 12px;" title="Apply Filters">
+                            <i class="fa-solid fa-filter"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Secondary View & Archive Toggle Bar -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-2"
+                     style="border-top: 1px solid rgba(96,96,77,0.18);">
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <a th:href="@{/library(archived=false, view=${selectedView})}"
+                           class="badge-editorial"
+                           th:classappend="${!selectedArchived} ? 'badge-gold' : ''">
+                            <i class="fa-solid fa-book-open"></i> Active Library
+                        </a>
+                        <a th:href="@{/library(archived=true, view=${selectedView})}"
+                           class="badge-editorial"
+                           th:classappend="${selectedArchived} ? 'badge-gold' : ''">
+                            <i class="fa-solid fa-box-archive"></i> Archived Vault
+                        </a>
+                        <a th:if="${selectedSearch != '' or selectedGenre != 'ALL' or selectedMood != 'ALL' or selectedTag != 'ALL'}"
+                           th:href="@{/library}" style="font-size: 12px; color: #8B3A3A; margin-left: 8px;">
+                            <i class="fa-solid fa-xmark"></i> Reset Filters
+                        </a>
+                    </div>
+
+                    <!-- Grid vs List View Switcher -->
+                    <div class="d-flex align-items-center gap-1">
+                        <span style="font-size: 11px; color: var(--text-secondary); margin-right: 6px; text-transform: uppercase; letter-spacing: 0.1em;">Layout:</span>
+                        <button type="button" onclick="switchLibraryView('grid')"
+                                class="btn btn-sm"
+                                th:style="${selectedView == 'grid' ? 'background:#353626; color:#F5F0E5;' : 'border:1px solid rgba(96,96,77,0.3);'}">
+                            <i class="fa-solid fa-grip"></i> Grid
+                        </button>
+                        <button type="button" onclick="switchLibraryView('list')"
+                                class="btn btn-sm"
+                                th:style="${selectedView == 'list' ? 'background:#353626; color:#F5F0E5;' : 'border:1px solid rgba(96,96,77,0.3);'}">
+                            <i class="fa-solid fa-list"></i> List
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- ============================================================
+                 3. EMPTY STATE
+                 ============================================================ -->
+            <div th:if="${#lists.isEmpty(poems)}" class="manuscript-card text-center py-5 my-3">
+                <div class="script-accent" style="font-size: 32px;">No manuscripts match your query</div>
+                <p class="text-muted mx-auto mb-4" style="max-width: 460px;">
+                    Every great anthology begins with a single line on warm ivory paper. Start composing a new poem or clear your search filters.
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a th:href="@{/editor}" class="btn-editorial btn-editorial-olive">
+                        <i class="fa-solid fa-feather-pointed"></i> Write a New Poem
+                    </a>
+                    <a th:href="@{/library}" class="btn-editorial btn-editorial-outline">Show All Poems</a>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 4A. GRID VIEW (VINTAGE MANUSCRIPT CARDS)
+                 ============================================================ -->
+            <div class="row g-4" th:if="${!#lists.isEmpty(poems) and selectedView != 'list'}">
+                <div class="col-md-6 col-xl-4" th:each="poem : ${poems}">
+                    <div class="manuscript-card">
+                        <img th:src="@{/images/botanical-eucalyptus.svg}" alt="" class="manuscript-corner-leaf"/>
+
+                        <div>
+                            <!-- Top Meta Badges & Favorite Heart -->
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span class="badge-editorial badge-gold" th:text="${poem.genre}">Free Verse</span>
+                                    <span class="badge-editorial" th:text="${poem.mood}">Serene</span>
+                                    <span class="badge-editorial"
+                                          th:style="${poem.status == 'DRAFT' ? 'background:rgba(161,139,80,0.25);' : ''}"
+                                          th:text="${poem.status}">PUBLISHED</span>
+                                </div>
+                                <button type="button" class="btn btn-sm p-0 border-0"
+                                        th:onclick="'PoetryVerse.toggleFavorite(' + ${poem.id} + ', this)'"
+                                        title="Mark as Favorite">
+                                    <i th:class="${poem.favorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"
+                                       th:style="${poem.favorite ? 'color:#A18B50; font-size:16px;' : 'font-size:16px;'}"></i>
+                                </button>
+                            </div>
+
+                            <!-- Title & Subtitle -->
+                            <h3 class="serif-heading mb-1" style="font-size: 26px; font-weight: 600; cursor: pointer;"
+                                th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                th:text="${poem.title}">Poem Title</h3>
+                            <div th:if="${poem.subtitle != null and !poem.subtitle.isEmpty()}"
+                                 class="serif-heading fst-italic mb-2"
+                                 style="font-size: 15.5px; color: var(--text-secondary);"
+                                 th:text="${poem.subtitle}">Subtitle</div>
+
+                            <!-- Verse Excerpt -->
+                            <div class="manuscript-verse-preview"
+                                 style="cursor: pointer;"
+                                 th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                 th:text="${poem.excerpt}"></div>
+
+                            <!-- Tags -->
+                            <div class="d-flex flex-wrap gap-1 mb-3" th:if="${!#lists.isEmpty(poem.tags)}">
+                                <a th:each="t : ${poem.tags}"
+                                   th:href="@{/library(tag=${t.name})}"
+                                   style="font-size: 11px; color: var(--antique-gold); background: rgba(161,139,80,0.1); padding: 2px 8px; border-radius: 99px;"
+                                   th:text="'#' + ${t.name}">#tag</a>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer: Dates & Action Toolbar -->
+                        <div class="pt-3" style="border-top: 1px solid rgba(161,139,80,0.25);">
+                            <div class="d-flex justify-content-between mb-2" style="font-size: 11.5px; color: var(--text-secondary);">
+                                <span>
+                                    Created: <strong th:text="${poem.createdAt != null ? #temporals.format(poem.createdAt, 'MMM d, yyyy') : '—'}">Nov 4</strong>
+                                </span>
+                                <span>
+                                    Edited: <strong th:text="${poem.updatedAt != null ? #temporals.format(poem.updatedAt, 'MMM d, HH:mm') : '—'}">Nov 4</strong>
+                                </span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span style="font-size: 12px; font-weight: 500; color: var(--deep-olive);"
+                                      th:text="${poem.wordCount + ' words • ' + poem.lineCount + ' lines'}">84 words</span>
+
+                                <div class="d-flex align-items-center gap-1">
+                                    <button type="button" class="btn btn-sm p-1"
+                                            th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                            title="Read Framed Manuscript">
+                                        <i class="fa-solid fa-book-open-reader"></i>
+                                    </button>
+                                    <a th:href="@{'/editor/' + ${poem.id}}" class="btn btn-sm p-1" title="Edit Poem">
+                                        <i class="fa-solid fa-pen-nib" style="color: #A18B50;"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm p-1"
+                                            th:onclick="'PoetryVerse.duplicatePoem(' + ${poem.id} + ')'"
+                                            title="Duplicate Manuscript">
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm p-1"
+                                            th:onclick="'PoetryVerse.toggleArchive(' + ${poem.id} + ')'"
+                                            th:title="${poem.archived ? 'Restore from Archive' : 'Archive Poem'}">
+                                        <i class="fa-solid fa-box-archive"></i>
+                                    </button>
+                                    <a th:href="@{'/api/poems/' + ${poem.id} + '/export/pdf'}" class="btn btn-sm p-1" title="Export PDF">
+                                        <i class="fa-solid fa-file-pdf"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm p-1"
+                                            th:data-id="${poem.id}"
+                                            th:data-title="${poem.title}"
+                                            onclick="PoetryVerse.deletePoem(this.getAttribute('data-id'), this.getAttribute('data-title'))"
+                                            title="Delete Poem">
+                                        <i class="fa-regular fa-trash-can" style="color: #8B3A3A;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 4B. LIST VIEW (EDITORIAL FOLIO TABLE)
+                 ============================================================ -->
+            <div th:if="${!#lists.isEmpty(poems) and selectedView == 'list'}"
+                 class="manuscript-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" style="background: transparent;">
+                        <thead style="background-color: #353626; color: #F5F0E5; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;">
+                            <tr>
+                                <th class="py-3 ps-4">Manuscript Title</th>
+                                <th class="py-3">Genre &amp; Mood</th>
+                                <th class="py-3">Status</th>
+                                <th class="py-3">Metrics</th>
+                                <th class="py-3">Created / Edited</th>
+                                <th class="py-3 pe-4 text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="poem : ${poems}">
+                                <td class="ps-4 py-3">
+                                    <div class="serif-heading fw-semibold" style="font-size: 21px; cursor: pointer;"
+                                         th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                         th:text="${poem.title}">Title</div>
+                                    <div style="font-size: 12.5px; color: var(--text-secondary);" th:text="${poem.subtitle}"></div>
+                                </td>
+                                <td>
+                                    <span class="badge-editorial badge-gold me-1" th:text="${poem.genre}"></span>
+                                    <span class="badge-editorial" th:text="${poem.mood}"></span>
+                                </td>
+                                <td>
+                                    <span class="badge-editorial" th:text="${poem.status}">PUBLISHED</span>
+                                </td>
+                                <td style="font-size: 13px;" th:text="${poem.wordCount + ' words • ' + poem.lineCount + ' lines'}"></td>
+                                <td style="font-size: 12px; color: var(--text-secondary);">
+                                    <div>Created: <span th:text="${poem.createdAt != null ? #temporals.format(poem.createdAt, 'MMM d, yyyy') : '—'}"></span></div>
+                                    <div>Edited: <span th:text="${poem.updatedAt != null ? #temporals.format(poem.updatedAt, 'MMM d, HH:mm') : '—'}"></span></div>
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <button type="button" class="btn btn-sm"
+                                                th:onclick="'PoetryVerse.toggleFavorite(' + ${poem.id} + ', this)'">
+                                            <i th:class="${poem.favorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"
+                                               th:style="${poem.favorite ? 'color:#A18B50;' : ''}"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm"
+                                                th:onclick="'PoetryVerse.openManuscriptModal(' + ${poem.id} + ')'"
+                                                title="Read">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                        <a th:href="@{'/editor/' + ${poem.id}}" class="btn btn-sm" title="Edit">
+                                            <i class="fa-solid fa-pen-nib"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm"
+                                                th:onclick="'PoetryVerse.duplicatePoem(' + ${poem.id} + ')'"
+                                                title="Duplicate">
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                        <a th:href="@{'/api/poems/' + ${poem.id} + '/export/pdf'}" class="btn btn-sm" title="PDF">
+                                            <i class="fa-solid fa-file-pdf"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm"
+                                                th:data-id="${poem.id}"
+                                                th:data-title="${poem.title}"
+                                                onclick="PoetryVerse.deletePoem(this.getAttribute('data-id'), this.getAttribute('data-title'))"
+                                                title="Delete">
+                                            <i class="fa-regular fa-trash-can" style="color: #8B3A3A;"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- IMPORT TXT MANUSCRIPT MODAL (SECTION 14) -->
+<div class="modal fade" id="importTxtModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #FAF7F0; border: 2px solid #A18B50;">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <span class="script-accent" style="font-size: 22px;">Manuscript Archiver</span>
+                    <h4 class="serif-heading mb-0" style="font-size: 26px;">Import Poem from .TXT File</h4>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="label-editorial">Select .TXT File *</label>
+                    <input type="file" id="importTxtFileInput" accept=".txt,text/plain" class="input-editorial" required/>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="label-editorial">Assign Genre</label>
+                        <select id="importTxtGenre" class="input-editorial">
+                            <option th:each="g : ${genres}" th:value="${g}" th:text="${g}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="label-editorial">Assign Collection (Optional)</label>
+                        <select id="importTxtCollection" class="input-editorial">
+                            <option value="">— None —</option>
+                            <option th:each="c : ${collections}" th:value="${c.id}" th:text="${c.name}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn-editorial btn-editorial-outline" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" onclick="submitTxtImport()" class="btn-editorial btn-editorial-olive">
+                    <i class="fa-solid fa-upload"></i> Import Manuscript
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: modalsAndScripts}"></div>
+<script>
+    function switchLibraryView(mode) {
+        document.getElementById('viewModeInput').value = mode;
+        document.getElementById('libraryFilterForm').submit();
+    }
+
+    async function submitTxtImport() {
+        const fileInput = document.getElementById('importTxtFileInput');
+        if (!fileInput.files || fileInput.files.length === 0) {
+            PoetryVerse.showToast('Please choose a .txt file to import.', 'error');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('genre', document.getElementById('importTxtGenre').value);
+        const colId = document.getElementById('importTxtCollection').value;
+        if (colId) formData.append('collectionId', colId);
+
+        try {
+            const res = await fetch('/api/poems/import/txt', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                PoetryVerse.showToast(data.message);
+                setTimeout(() => window.location.reload(), 700);
+            } else {
+                PoetryVerse.showToast(data.message || 'Import failed.', 'error');
+            }
+        } catch (err) {
+            PoetryVerse.showToast('Error importing file.', 'error');
+        }
+    }
+</script>
+</body>
+</html>
